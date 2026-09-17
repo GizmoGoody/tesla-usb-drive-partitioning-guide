@@ -1,0 +1,2006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tesla USB Drive Partitioning Planner</title>
+<meta name="description" content="Plan a single Tesla USB drive for Dashcam, Music, Light Show, Boombox, Wraps and License Plate, then follow tailored graphical or command line instructions to build it.">
+
+<!-- Link preview card (Facebook, Messenger, X, Slack, iMessage). -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Tesla USB Drive Partitioning Guide">
+<meta property="og:title" content="Tesla USB Drive Partitioning Planner">
+<meta property="og:description" content="Plan a single Tesla USB drive for Dashcam, Music, Light Show, Boombox, Wraps and License Plate, then follow tailored graphical or command line instructions to build it.">
+<meta property="og:url" content="https://gizmogoody.github.io/tesla-usb-drive-partitioning-guide/partitioning-planner.html">
+<meta property="og:image" content="https://gizmogoody.github.io/tesla-usb-drive-partitioning-guide/images/TeslaUSBDrivePartitioningPlanner.png">
+<meta property="og:image:width" content="2400">
+<meta property="og:image:height" content="1256">
+<meta property="og:image:alt" content="Tesla USB Drive Partitioning Planner — one USB drive, six features: Dashcam, Music, Light Show, Boombox, Wraps and License Plate">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Tesla USB Drive Partitioning Planner">
+<meta name="twitter:description" content="Plan a single Tesla USB drive for Dashcam, Music, Light Show, Boombox, Wraps and License Plate, then follow tailored graphical or command line instructions to build it.">
+<meta name="twitter:image" content="https://gizmogoody.github.io/tesla-usb-drive-partitioning-guide/images/TeslaUSBDrivePartitioningPlanner.png">
+<style>
+  :root {
+    --bg: #f6f8fa;
+    --panel: #ffffff;
+    --border: #d0d7de;
+    --text: #1f2328;
+    --muted: #57606a;
+    --accent: #0969da;
+    --ok: #1a7f37;
+    --warn: #9a6700;
+    --err: #cf222e;
+    --info: #0969da;
+    --mono-bg: #f6f8fa;
+    --mono-border: #d0d7de;
+    --chip-bg: #eef2f6;
+    --copper: #c8901a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #4493f8;
+      --ok: #3fb950;
+      --warn: #d29922;
+      --err: #f85149;
+      --info: #4493f8;
+      --mono-bg: #0d1117;
+      --mono-border: #30363d;
+      --chip-bg: #21262d;
+      --copper: #e8b923;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { overflow-x: hidden; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 24px 20px 80px; }
+  h1 { font-size: 1.6rem; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 16px; font-size: 0.95rem; }
+  .sub a { color: var(--accent); }
+  .toc { color: var(--muted); font-size: 0.9rem; margin: 0 0 24px; padding-left: 20px; }
+  .toc li { margin-bottom: 4px; }
+  .toc a { color: var(--accent); font-weight: 600; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 18px 20px; margin-bottom: 20px; scroll-margin-top: 12px; }
+  .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+  .panel h2 { font-size: 1.1rem; margin: 0; }
+  .panel h2 .n {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--accent); color: #fff; font-size: 0.8rem; margin-right: 8px;
+  }
+  button.reset {
+    font-size: 0.78rem; padding: 4px 10px; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--bg); color: var(--text); cursor: pointer;
+  }
+  button.reset:hover { border-color: var(--accent); color: var(--accent); }
+  label { font-weight: 600; font-size: 0.9rem; }
+  .hint { color: var(--muted); font-size: 0.85rem; margin-top: 10px; }
+
+  /* ---- one label treatment, set by the partition header ---- */
+  .bucket-label, .bucket-sublabel, .tray-label, .field > span, .fill-toggle,
+  .mode-btn, .tab-btn, table.plan th, table.plan td:first-child {
+    font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  /* Volume labels are typed verbatim, so the row header keeps its own casing. */
+  table.plan td:first-child { text-transform: none; }
+  table.plan th, table.plan td:first-child { color: var(--text); }
+  .drivebox .fieldlabel label { font: inherit; letter-spacing: inherit; }
+
+  /* ---- info icon ---- */
+  .info-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 14px; height: 14px; border-radius: 50%; margin-left: 5px;
+    border: 1px solid var(--muted); color: var(--muted);
+    font-size: 0.62rem; font-weight: 700; font-style: normal; text-transform: none;
+    cursor: default; vertical-align: middle; line-height: 1;
+  }
+  .info-icon:hover, .info-icon.open { border-color: var(--accent); color: var(--accent); }
+
+  .tip {
+    position: fixed; z-index: 100; max-width: min(340px, 86vw);
+    background: var(--panel); color: var(--text);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 9px 11px; font-size: 0.8rem; font-weight: 400; line-height: 1.45;
+    text-align: left; text-transform: none; letter-spacing: 0;
+    white-space: pre-wrap; overflow-wrap: anywhere;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
+    opacity: 0; visibility: hidden; pointer-events: none;
+  }
+  .tip.on { opacity: 1; visibility: visible; }
+
+  /* ---- notices: the single style for every warning or note ---- */
+  .notice { border-radius: 6px; padding: 10px 14px; font-size: 0.87rem; border: 1px solid; margin: 10px 0; }
+  .notice.ok { color: var(--ok); border-color: var(--ok); background: color-mix(in srgb, var(--ok) 10%, transparent); }
+  .notice.warn { color: var(--warn); border-color: var(--warn); background: color-mix(in srgb, var(--warn) 10%, transparent); }
+  .notice.err { color: var(--err); border-color: var(--err); background: color-mix(in srgb, var(--err) 12%, transparent); }
+  .notice.info { color: var(--info); border-color: var(--info); background: color-mix(in srgb, var(--info) 10%, transparent); }
+  .notice ul { margin: 6px 0 0; padding-left: 20px; }
+  .warnbox { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+
+  /* ---- section 1: drive ---- */
+  .sdcards { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+  .sdcard {
+    width: 58px; height: 78px; cursor: pointer; color: var(--muted);
+    opacity: 0.62; transition: opacity 0.12s ease;
+  }
+  .sdcard svg { display: block; width: 100%; height: 100%; }
+  .sdcard .body { fill: var(--bg); stroke: var(--border); stroke-width: 4; stroke-linejoin: round; }
+  .sdcard .pad { fill: var(--copper); }
+  .sdcard .capt {
+    fill: currentColor; font-size: 26px; font-weight: 700;
+    letter-spacing: 0.04em; text-anchor: middle;
+  }
+  .sdcard:not(.selected):hover { opacity: 1; color: var(--text); }
+  .sdcard:not(.selected):hover .body { stroke: var(--text); }
+  .sdcard.selected { opacity: 1; color: var(--accent); }
+  .sdcard.selected .body {
+    stroke: var(--accent); fill: color-mix(in srgb, var(--accent) 10%, var(--bg));
+  }
+  .drivebox { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .drivebox .field { display: flex; flex-direction: column; gap: 4px; }
+  .drivebox .fieldlabel { display: inline-flex; align-items: center; }
+  .drivebox input[type=number] {
+    width: 130px; font-size: 1rem; padding: 6px 8px;
+    border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text);
+  }
+
+  /* ---- section 2: mode switch ---- */
+  .modeswitch { display: flex; gap: 8px; margin-bottom: 14px; }
+  .mode-btn {
+    border: 1px solid var(--border); background: var(--bg); color: var(--text);
+    padding: 7px 14px; border-radius: 6px; cursor: pointer;
+  }
+  .mode-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* ---- checkbox partition rows ---- */
+  .prow {
+    border: 2px dashed var(--border); border-radius: 8px; padding: 10px;
+    background: var(--bg); margin-bottom: 10px;
+  }
+  .prow.bucket-err { border-color: var(--err); background: color-mix(in srgb, var(--err) 12%, transparent); }
+  .prow.bucket-warn { border-color: var(--warn); background: color-mix(in srgb, var(--warn) 10%, transparent); }
+  .prow.bucket-info { border-color: var(--info); background: color-mix(in srgb, var(--info) 10%, transparent); }
+  .prow .bucket-label { color: var(--muted); display: block; }
+  .prow.bucket-err .bucket-label { color: var(--err); }
+  .prow.bucket-warn .bucket-label { color: var(--warn); }
+  .prow.bucket-info .bucket-label { color: var(--info); }
+  .featchecks { display: flex; flex-wrap: wrap; gap: 6px 16px; padding-top: 2px; }
+  .featcheck-wrap { display: inline-flex; align-items: center; gap: 6px; }
+  .featcheck {
+    display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+    font-size: 0.85rem; font-weight: 400; text-transform: none; letter-spacing: 0;
+    color: var(--muted); opacity: 0.55;
+  }
+  .featcheck.on { color: var(--text); font-weight: 600; opacity: 1; }
+  .featcheck input[type=checkbox] { width: 15px; height: 15px; cursor: pointer; }
+
+  /* ---- partitions ---- */
+  .buckets { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+  .bucket {
+    flex: 1 1 240px; min-width: 240px;
+    border: 2px dashed var(--border); border-radius: 8px; padding: 10px;
+    background: var(--bg); transition: border-color 0.15s, background 0.15s;
+  }
+  .bucket.bucket-err { border-color: var(--err); background: color-mix(in srgb, var(--err) 12%, transparent); }
+  .bucket.bucket-warn { border-color: var(--warn); background: color-mix(in srgb, var(--warn) 10%, transparent); }
+  .bucket.bucket-info { border-color: var(--info); background: color-mix(in srgb, var(--info) 10%, transparent); }
+  .bucket.dragover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--bg)); }
+  .bucket .bucket-label { color: var(--muted); display: block; }
+  .bucket.bucket-err .bucket-label { color: var(--err); }
+  .bucket.bucket-warn .bucket-label { color: var(--warn); }
+  .bucket.bucket-info .bucket-label { color: var(--info); }
+  .bucket-sublabel { color: var(--muted); display: block; margin-bottom: 6px; }
+  .bucket-chips { display: flex; flex-direction: column; gap: 6px; min-height: 30px; }
+  .chiprow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .addbucket {
+    flex: 1 1 240px; min-width: 240px; min-height: 90px;
+    border: 2px dashed var(--border); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    color: var(--muted); font-size: 0.85rem; cursor: pointer; background: transparent; padding: 10px;
+  }
+  .addbucket:hover { border-color: var(--accent); color: var(--accent); }
+  .addbucket.dragover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--bg)); color: var(--accent); }
+
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--chip-bg); border: 1px solid var(--border); border-radius: 999px;
+    padding: 4px 6px 4px 10px; font-size: 0.85rem; user-select: none;
+  }
+  .chip.draggable { cursor: grab; }
+  .chip.draggable:active { cursor: grabbing; }
+  .chip.dragging { opacity: 0.4; }
+  .chip button {
+    border: none; background: none; color: var(--muted); cursor: pointer;
+    font-size: 0.8rem; line-height: 1; padding: 2px 4px; border-radius: 50%;
+  }
+  .chip button:hover { background: var(--border); color: var(--text); }
+
+  .tray { margin-top: 16px; border-top: 1px dashed var(--border); padding-top: 14px; }
+  .tray-label { color: var(--muted); display: block; margin-bottom: 8px; }
+  .tray-drop {
+    display: flex; flex-wrap: wrap; gap: 6px; min-height: 40px;
+    border: 2px dashed var(--border); border-radius: 8px; padding: 10px;
+  }
+  .tray-drop.dragover { border-color: var(--err); background: color-mix(in srgb, var(--err) 8%, transparent); }
+  .tray-drop:empty::after { content: "Drop a feature here to exclude it \00a0\2014\00a0 no partition will be created for it"; color: var(--muted); font-size: 0.82rem; }
+
+  /* A fixed two-column grid, so the same field sits in the same place in every partition.
+     Size comes last because its estimates are the one block whose height varies. */
+  .partition-fields {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 150px));
+    align-items: start; gap: 10px 12px; max-width: 320px;
+    margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border);
+  }
+  .partition-fields .field-size { grid-column: 1 / -1; }
+  .partition-fields .field input, .partition-fields .field select { width: 100%; }
+  .partition-fields .field-size { min-width: 0; }
+  .partition-fields .field input[readonly] { cursor: default; }
+  .feat-block { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field > span { color: var(--muted); }
+  @media (pointer: coarse) {
+    input, select, textarea, button { font-size: 16px; }
+  }
+  .field input[type=text], .field input[type=number], .field select {
+    padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px;
+    background: var(--panel); color: var(--text); font-size: 0.92rem; width: 120px;
+  }
+  .feat-est { list-style: none; margin: 0; padding: 0; font-size: 0.76rem; color: var(--muted); }
+  .feat-est li { white-space: nowrap; }
+  .feat-est li.low { color: var(--warn); }
+  .size-row { display: flex; align-items: center; gap: 10px; }
+  .partition-fields .size-row input { width: 150px; }
+  .partition-fields .size-row input[readonly] { flex: 1 1 auto; width: auto; min-width: 0; border-color: transparent; background: transparent; }
+  .over { font-size: 0.76rem; color: var(--warn); white-space: nowrap; }
+  .field input.low { border-color: var(--warn); }
+  .partition-fields .size-row input[readonly].low { border-color: var(--warn); }
+  .field input.invalid, .drivebox input.invalid { border-color: var(--err); }
+  .bucket-head { display: flex; flex-direction: column; align-items: center; gap: 5px; margin-bottom: 10px; }
+  .bucket-head .bucket-label { margin-bottom: 0; text-align: center; }
+  .fill-toggle {
+    display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; cursor: pointer;
+    color: var(--muted); opacity: 0.7;
+  }
+  .fill-toggle.on { color: var(--accent); opacity: 1; }
+  .fill-wrap { display: inline-flex; align-items: center; }
+  .fill-toggle input[type=checkbox] { width: 13px; height: 13px; cursor: pointer; margin: 0; }
+  .winkey {
+    display: inline-block; border: 1px solid var(--border); border-radius: 3px;
+    padding: 0 4px; background: var(--mono-bg); font-size: 0.85em; line-height: 1.4;
+  }
+
+  .table-scroll { overflow-x: auto; }
+  /* Partition colours, shared by the section 3 bar and the table rows beneath it. */
+  :root {
+    --p1: #0969da; --p2: #1a7f37; --p3: #9a6700; --p4: #8250df;
+    --p5: #bf3989; --p6: #0f766e; --p7: #cf222e; --p8: #57606a;
+    --zoomline: #1f2328;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --p1: #4493f8; --p2: #3fb950; --p3: #d29922; --p4: #ab7df8;
+      --p5: #f778ba; --p6: #2dd4bf; --p7: #f85149; --p8: #8b949e;
+      --zoomline: #e6edf3;
+    }
+  }
+
+  /* Header sits on top of the main bar and is styled like a table column header. */
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+
+  .hero {
+    display: block; width: 100%; max-width: 900px; height: auto;
+    margin: 0 auto 20px; border-radius: 10px;
+  }
+
+  .partbar-head {
+    text-align: center; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em;
+    color: var(--muted); background: var(--bg);
+    border: 1px solid var(--border); border-bottom: none;
+    border-radius: 6px 6px 0 0; padding: 5px 10px;
+  }
+  .partbar { display: flex; width: 100%; height: 34px; border-radius: 6px; overflow: hidden; }
+  /* No min-width: segment width is strictly proportional to partition size. */
+  .partseg {
+    flex-basis: 0; overflow: hidden; box-sizing: border-box;
+    display: flex; align-items: center; justify-content: center;
+    background: color-mix(in srgb, var(--rc) 28%, transparent);
+    border: 2px solid var(--rc);
+  }
+  /* Round the outer ends on the segments themselves, so nothing is clipped by the container. */
+  .partseg:first-child { border-radius: 6px 0 0 6px; }
+  .partseg:last-child { border-radius: 0 6px 6px 0; }
+  .partseg:only-child { border-radius: 6px; }
+  .partbar-main { border-radius: 0 0 6px 6px; }
+  .partbar-main .partseg:first-child { border-top-left-radius: 0; }
+  .partbar-main .partseg:last-child { border-top-right-radius: 0; }
+  .partseg-label {
+    white-space: nowrap; font-size: 0.78rem; font-weight: 600; color: var(--text);
+    padding: 0 4px;
+  }
+  .partseg-label[hidden] { display: none; }
+
+  /* One unfilled, outlined segment stands in for the partitions the detail bar expands; the
+     detail bar carries the same outline, which is what ties the two together. */
+  .partzoom-slot { background: none; border: 2px solid var(--zoomline); }
+  .partzoom-slot .partseg-label { color: var(--zoomline); }
+  .partzoom-frame {
+    position: relative; margin-top: 15px;
+    border: 2px solid var(--zoomline); border-radius: 6px 6px 0 0;
+    border-bottom: none; padding: 2px;
+  }
+  .partbar-detail { height: 24px; }
+  /* Footer mirrors the drive header above the main bar, but sits under its own bar. */
+  .partbar-foot {
+    text-align: center; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em;
+    color: var(--muted); background: var(--bg);
+    border: 2px solid var(--zoomline); border-top: none;
+    border-radius: 0 0 6px 6px; padding: 5px 10px; margin-bottom: 12px;
+  }
+  /* An outlined pointer on the panel's top edge, sitting under the placeholder it expands --
+     the popover idiom, which stays readable even when the source segment is a sliver. */
+  .partzoom-frame::before, .partzoom-frame::after {
+    content: ""; position: absolute; width: 0; height: 0;
+    left: var(--zx); transform: translateX(-50%);
+    border-left: 9px solid transparent; border-right: 9px solid transparent;
+  }
+  .partzoom-frame::before { top: -11px; border-bottom: 11px solid var(--zoomline); }
+  .partzoom-frame::after { top: -8px; border-bottom: 11px solid var(--panel); }
+  .partbar-only { margin-bottom: 12px; }
+
+  table.plan { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  table.plan th, table.plan td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; vertical-align: top; }
+  table.plan th { background: var(--bg); }
+  table.plan td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  table.plan td.req { text-align: center; }
+  table.plan tbody tr { background: color-mix(in srgb, var(--rc) 10%, transparent); }
+  table.plan tbody td:first-child { border-left: 4px solid var(--rc); }
+  .req-icon { font-size: 1.1rem; cursor: default; }
+  .req-icon.open { outline: 1px solid var(--accent); border-radius: 4px; }
+  table.plan ul.reqs { margin: 0; padding-left: 18px; }
+  table.plan ul.reqs li { margin-bottom: 2px; }
+
+  ol.steps, ul.steps { padding-left: 22px; font-size: 0.92rem; }
+  ol.steps li, ul.steps li { margin-bottom: 8px; }
+  ol.steps > li > .notice, ul.steps > li > .notice { margin: 14px 0 10px -22px; }
+  ul.steps > li.notice-li { list-style: none; }
+  ul.steps > li.notice-li > .notice { margin: 10px 0; }
+  .shot { margin: 10px 0 0 -22px; }
+  .shot img { display: block; max-width: 100%; height: auto; cursor: zoom-in;
+    border: 1px solid var(--border); border-radius: 6px; }
+  .shot.shot-sm img { max-height: 240px; width: auto; max-width: 100%; }
+  .shot.shot-aligned { margin-left: 0; }
+
+  .diskfield { display: flex; flex-direction: column; gap: 4px; margin: 10px 0; }
+  .diskfield label { font-size: 0.85rem; color: var(--muted); }
+  .diskrow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  /* Two digits plus the spinner arrows; disk numbers never run longer than that. */
+  .diskfield input[type=number] {
+    width: 56px; font-size: 1rem; padding: 6px 8px;
+    border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text);
+  }
+  .confirmdisk {
+    padding: 8px 14px; font: inherit; font-weight: 400; white-space: nowrap;
+    color: #fff; background: var(--accent); border: 1px solid var(--accent);
+    border-radius: 6px; cursor: pointer;
+  }
+  .confirmdisk strong { font-weight: 700; }
+  .confirmdisk:not(:disabled):hover { filter: brightness(1.08); }
+  .confirmdisk:disabled {
+    color: var(--muted); background: none; border-color: var(--border); cursor: not-allowed;
+  }
+
+  .lightbox {
+    position: fixed; inset: 0; z-index: 9999; display: none; cursor: zoom-out;
+    align-items: center; justify-content: center; padding: 2vmin;
+    background: rgba(0, 0, 0, 0.88);
+  }
+  .lightbox.open { display: flex; }
+  .lightbox img {
+    max-width: 96vw; max-height: 96vh; width: auto; height: auto; object-fit: contain;
+    border-radius: 6px; box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+  }
+  .lightbox-close {
+    position: absolute; top: 10px; right: 16px; padding: 2px 10px;
+    background: none; border: 0; color: #fff; font-size: 2rem; line-height: 1; cursor: pointer;
+  }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; }
+  code.inline { background: var(--mono-bg); border: 1px solid var(--mono-border); border-radius: 4px; padding: 1px 5px; font-size: 0.88em; }
+  .codebox { position: relative; margin-bottom: 12px; }
+  pre.block {
+    background: var(--mono-bg); border: 1px solid var(--mono-border); border-radius: 6px;
+    padding: 14px; overflow: hidden; font-size: 0.85rem;
+    white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; margin: 0;
+  }
+  button.copy {
+    position: absolute; top: 8px; right: 8px; font-size: 0.75rem; padding: 3px 9px;
+    border-radius: 6px; border: 1px solid var(--border); background: var(--panel); color: var(--text); cursor: pointer;
+  }
+  button.copy:hover { border-color: var(--accent); color: var(--accent); }
+  .tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+  .tab-btn {
+    border: 1px solid var(--border); background: var(--bg); color: var(--text);
+    padding: 7px 14px; border-radius: 6px; cursor: pointer;
+  }
+  .tab-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  footer { color: var(--muted); font-size: 0.8rem; text-align: center; margin-top: 30px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <img class="hero" src="images/TeslaUSBDrivePartitioningPlanner.png"
+       alt="Tesla USB Drive Partitioning Planner — one USB drive, six features: Dashcam, Music, Light Show, Boombox, Wraps and License Plate">
+  <h1 class="sr-only">Tesla USB Drive Partitioning Planner</h1>
+  <p class="sub">This is a companion tool for the <a href="https://github.com/GizmoGoody/tesla-usb-drive-partitioning-guide" target="_blank" rel="noopener">Tesla USB Drive Partitioning Guide</a>.  Start by entering the size of your <a href="#sec-drive">physical USB drive</a>. Then choose, group, and configure your desired <a href="#sec-partitions">features and partitions</a>. Next, verify the <a href="#sec-plan">partitioning plan</a>, along with the folders and file requirements for each feature. Finally, follow the tailored graphical or command line <a href="#sec-instructions">instructions</a> to implement that plan.</p>
+
+  <p><em><strong>Last verified: September 2026</strong></em></p>
+
+  <div class="panel" id="sec-drive">
+    <div class="panel-head"><h2><span class="n">1</span>Physical USB Drive</h2><button class="reset" id="resetDrive">Reset to defaults</button></div>
+    <p class="hint">Select the advertised capacity of your external SSD or microSD card. This will be used to calculate the usable capacity of your drive. Both values can be entered manually as well.</p>
+    <div class="sdcards" id="sdcards"></div>
+    <div class="drivebox">
+      <div class="field">
+        <span class="fieldlabel"><label for="advertisedGB">Advertised capacity (GB)</label><i class="info-icon" data-tip="The capacity printed on the drive or its packaging. Manufacturers advertise in decimal GB (10^9 bytes), while Windows reports binary GiB (2^30 bytes) but labels it &quot;GB&quot; — so a &quot;256 GB&quot; drive shows up as ~238 GB once formatted. Entering the advertised number fills in that usable figure automatically.">i</i></span>
+        <input type="number" id="advertisedGB" min="1" step="1" value="256">
+      </div>
+      <div class="field">
+        <span class="fieldlabel"><label for="usableGB">Usable capacity (GB)</label><i class="info-icon" data-tip="What Windows will actually report for this drive, and the number every partition size on this page is calculated against. Overwrite it if Windows reports something different for your specific drive.">i</i></span>
+        <input type="number" id="usableGB" min="1" step="0.01">
+      </div>
+    </div>
+    <div class="warnbox" id="driveWarnings"></div>
+  </div>
+
+  <div class="panel" id="sec-partitions">
+    <div class="panel-head"><h2><span class="n">2</span>Features and Partitions</h2><button class="reset" id="resetFeatures">Reset to defaults</button></div>
+    <p class="hint">The features, partitions, and settings below reflect the plan from  <a href="https://github.com/GizmoGoody/tesla-usb-drive-partitioning-guide/blob/main/README.md#partitioning-plan" target="_blank" rel="noopener">this guide's example</a> &mdash; the default grouping, volume labels, sizes, and allocation units all come from its <a href="https://github.com/GizmoGoody/tesla-usb-drive-partitioning-guide/blob/main/README.md#partitioning-plan" target="_blank" rel="noopener">Partitioning Plan table</a>.</p>
+    <div class="modeswitch">
+      <button class="mode-btn active" data-mode="drag">Drag and drop</button>
+      <button class="mode-btn" data-mode="checkboxes">Checkboxes</button>
+    </div>
+    <p class="hint" id="modeHint"></p>
+    <p class="hint">A partition's border turns red when Tesla documents its features as incompatible, amber when the pairing is disputed or undocumented, and blue when only the community reports it working. Scroll to the warnings below the partitions and the guide's <a href="https://github.com/GizmoGoody/tesla-usb-drive-partitioning-guide/blob/main/README.md#feature-compatibility" target="_blank" rel="noopener">Feature Compatibility table</a> for more details.</p>
+    <div id="checkboxRows"></div>
+    <div class="buckets" id="buckets"></div>
+    <div class="tray">
+      <span class="tray-label">Excluded features</span>
+      <div class="tray-drop" id="tray"></div>
+    </div>
+    <div class="warnbox" id="compatWarnings"></div>
+  </div>
+
+  <div class="panel" id="sec-plan">
+    <h2><span class="n">3</span>Partitioning Plan</h2>
+    <p class="hint">The following summarize the settings from the previous steps, adding the folders required for each feature, and the file requirements for the content.</p>
+    <div id="planTable"></div>
+    <div id="planStatus"></div>
+  </div>
+
+  <div class="panel" id="sec-instructions">
+    <h2><span class="n">4</span>Instructions</h2>
+    <br>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="graphical" data-tip="Point-and-click through Windows Disk Management. Best if this is your first drive, or you want to watch each partition appear as you create it. Pros: nothing to type, every step is visible, and picking the wrong disk is easier to catch before it does any damage. Cons: slow and repetitive, the format dialog does not offer exFAT in the New Simple Volume wizard or expose every allocation unit size, and the whole sequence has to be repeated by hand for each drive.">Graphical</button>
+      <button class="tab-btn" data-tab="commandline" data-tip="Paste a diskpart script into an elevated Command Prompt. Best if you are comfortable with diskpart, want exact allocation unit sizes, or are setting up more than one drive. Pros: fast, sets every size and allocation unit precisely, and the same script can be reused on another drive. Cons: the clean command erases the selected disk instantly with no confirmation and no undo, so an incorrect disk number destroys the wrong drive, and there is far less visual feedback along the way.">Command Line</button>
+    </div>
+    <div class="tab-panel active" id="tab-graphical"></div>
+    <div class="tab-panel" id="tab-commandline"></div>
+  </div>
+
+  <footer>Generated locally in your browser &mdash; nothing you enter here is sent anywhere.</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var GB_TO_USABLE = Math.pow(1000, 3) / Math.pow(1024, 3);
+  var CAPACITY_PRESETS = [32, 64, 128, 256, 512, 1024, 2048];
+
+  // est: how much content a partition holds.
+  //   perUnitMB  average size of one item (used when there is no hard cap)
+  //   maxItems / maxItemMB  documented caps; a capped feature can never exceed maxItems * maxItemMB
+  //   extraMB    fixed additional footprint (e.g. Boombox's LockChime.wav at the partition root)
+  // req: standardized File Requirements, rendered in a fixed order, omitting undocumented fields.
+  var FEATURES = {
+    teslacam: {
+      label: "TeslaCam", short: "TeslaCam", folders: ["TeslaCam"], files: [],
+      defaultAllocKB: 128, allocOptions: [64, 128, 256], minDriveGB: 64,
+      est: { unit: "hours", perUnitMB: 2048,
+             math: "Estimate, not a Tesla figure: assumes roughly 2 GB per hour with all cameras recording. Actual usage varies by camera count and scene complexity." },
+      req: {
+        lead: "You do not add files yourself. The car creates and manages <code class=\"inline\">RecentClips</code> (a rolling buffer of up to 60 minutes), <code class=\"inline\">SavedClips</code>, and <code class=\"inline\">SentryClips</code> inside the folder.",
+        drive: "64 GB minimum, sustained write of at least 4 MB/s"
+      },
+      source: { href: "https://www.tesla.com/ownersmanual/modely/en_us/GUID-F311BBCA-2532-4D04-B88C-DBA784ADEE21.html#:~:text=The%20TeslaCam%20folder%20contains%20these%20sub-folders", text: "Tesla's TeslaCam documentation" }
+    },
+    music: {
+      label: "Music", short: "Music", folders: [], files: [],
+      defaultSizeMB: 5120, minSizeMB: 512, defaultAllocKB: 32, allocOptions: [16, 32, 64],
+      est: { unit: "songs", perUnitMB: 5,
+             math: "Assumes ~5 MB per song, about a 4-minute MP3 at 160-192 kbps. FLAC or WAV libraries will hold far fewer." },
+      req: {
+        types: "MP3, FLAC, M4A, OGG, WAV. Apple Lossless and DRM-protected M4P will not play.",
+        maxFiles: "None documented",
+        maxSize: "None documented",
+        naming: "None documented; any folder structure works",
+        caveat: "The format list is aggregated from community sources rather than quoted from Tesla."
+      },
+      source: { href: "https://www.tesla.com/ownersmanual/modely/en_us/GUID-7A85FB6B-9DF6-4C55-A2F9-793207E48E9D.html#:~:text=USB%20Flash%20Drives", text: "Tesla's USB Flash Drives page" }
+    },
+    lightshow: {
+      label: "Light Show", short: "LightShow", folders: ["LightShow"], files: [],
+      defaultSizeMB: 700, minSizeMB: 128, defaultAllocKB: 128, allocOptions: [64, 128, 256],
+      est: { unit: "shows", perUnitMB: 35,
+             variants: [{ name: ".wav soundtracks", mb: 35 }, { name: ".mp3 soundtracks", mb: 9 }],
+             math: "Estimate, not a Tesla figure: assumes a 3-minute show. A .wav soundtrack at 44.1 kHz/16-bit stereo runs about 10 MB per minute (~30 MB), plus roughly 5 MB for the matching .fseq, so ~35 MB per show. The same show with a 192 kbps .mp3 soundtrack is only about 4 MB of audio, so ~9 MB per show. Tesla allows up to 4 hours per show: one maximum-length show would need roughly 2,400 MB of .wav audio (or about 340 MB as .mp3) plus a .fseq on the order of 400 MB, so size this partition around the shows you actually plan to load rather than the documented ceiling." },
+      req: {
+        types: "A <code class=\"inline\">.fseq</code> show file plus a matching <code class=\"inline\">.mp3</code> or <code class=\"inline\">.wav</code> (wav recommended)",
+        maxFiles: "Multiple shows supported from vehicle software 2023.44.25 onward",
+        naming: "Each <code class=\"inline\">.fseq</code> must match its audio filename (<code class=\"inline\">show1.fseq</code> with <code class=\"inline\">show1.wav</code>); the folder must be named <code class=\"inline\">LightShow</code> (case sensitive)",
+        duration: "4 hours maximum per show",
+        caveat: "The drive must not contain any map or firmware update files."
+      },
+      source: { href: "https://github.com/teslamotors/light-show#usb-flash-drive-requirements", text: "Light Show USB flash drive requirements" }
+    },
+    boombox: {
+      label: "Boombox", short: "Boombox", folders: ["Boombox"], files: ["LockChime.wav"],
+      defaultSizeMB: 8, minSizeMB: 8, defaultAllocKB: 16, allocOptions: [8, 16, 32],
+      est: { unit: "sounds", perUnitMB: 1, maxItems: 5, maxItemMB: 1, extraMB: 1,
+             math: "Hard cap, not an estimate: 5 sounds at the documented 1 MB maximum each, plus 1 MB for LockChime.wav at the partition root." },
+      req: {
+        types: "MP3 or WAV",
+        maxFiles: "5 in the <code class=\"inline\">Boombox</code> folder; if more are present the car loads the first 5 alphabetically",
+        maxSize: "1 MB per file",
+        naming: "The lock chime must be named exactly <code class=\"inline\">LockChime.wav</code> and sit at the partition root, not inside <code class=\"inline\">Boombox</code>. Other names are limited to 64 characters using letters, numbers, spaces, underscores, dashes, and dots.",
+        duration: "5 seconds or shorter recommended",
+        caveat: "The per-file limits are enumerated by mphacker/TeslaUSB rather than stated directly by Tesla."
+      },
+      source: { href: "https://www.tesla.com/ownersmanual/modely/en_us/GUID-79A49D40-A028-435B-A7F6-8E48846AB9E9.html#:~:text=Prepare%20a%20USB%20drive%20for%20Boombox", text: "Tesla's Boombox instructions" }
+    },
+    wraps: {
+      label: "Wraps", short: "Wraps", folders: ["Wraps"], files: [],
+      defaultSizeMB: 8, minSizeMB: 4, defaultAllocKB: 4, allocOptions: [4, 8, 16],
+      est: { unit: "wraps", perUnitMB: 1, maxItems: 10, maxItemMB: 1,
+             math: "Hard cap, not an estimate: 10 wraps at the documented 1 MB maximum each." },
+      req: {
+        types: "PNG",
+        maxFiles: "10 at a time",
+        maxSize: "1 MB per file",
+        dimensions: "Between 512 and 1024 px",
+        caveat: "The drive must not contain any map or firmware update files."
+      },
+      source: { href: "https://github.com/teslamotors/custom-wraps#how-to-use-custom-wraps", text: "Tesla's Custom Wraps repo" }
+    },
+    licenseplate: {
+      label: "License Plate", short: "LicensePlate", folders: ["LicensePlate"], files: [],
+      defaultSizeMB: 8, minSizeMB: 4, defaultAllocKB: 4, allocOptions: [4, 8, 16],
+      est: { unit: "plates", perUnitMB: 0.5, maxItems: 10, maxItemMB: 0.5,
+             math: "Hard cap, not an estimate: 10 plates at the documented 0.5 MB maximum each." },
+      req: {
+        types: "PNG",
+        maxFiles: "10 at a time",
+        maxSize: "0.5 MB per file",
+        dimensions: "420x200 px (North America) or 420x100 px (Europe)",
+        naming: "Alphanumeric, 32 characters or fewer"
+      },
+      source: { href: "https://github.com/teslamotors/custom-wraps/pull/14", text: "a pending pull request to Tesla's Custom Wraps repo" }
+    }
+  };
+  var FEATURE_ORDER = ["music", "lightshow", "boombox", "wraps", "licenseplate", "teslacam"];
+
+  var DEFAULT_BUCKETS = [["music"], ["lightshow"], ["boombox"], ["wraps", "licenseplate"], ["teslacam"]];
+
+  var KNOWN_LABELS = {
+    "teslacam": "TeslaCam",
+    "music": "Music",
+    "lightshow": "LightShow",
+    "boombox": "Boombox",
+    "wraps": "Wraps",
+    "licenseplate": "LicensePlate",
+    "licenseplate,wraps": "PaintShop"
+  };
+
+  function pairKey(a, b) { return [a, b].sort().join("|"); }
+
+  var COMPAT = {};
+  function addPair(a, b, status, source, note) { COMPAT[pairKey(a, b)] = { status: status, source: source, note: note }; }
+  addPair("teslacam", "music", "compatible", "tesla", "Tesla documents that Dashcam, Sentry Mode, Track Mode, and audio files can share one USB drive as long as they are in separate partitions or folders.");
+  addPair("teslacam", "lightshow", "incompatible", "tesla", "Tesla documents that a LightShow drive must not contain a base-level TeslaCam folder.");
+  addPair("teslacam", "boombox", "incompatible", "tesla", "Tesla's Boombox instructions state the drive can only contain one folder; it cannot be shared with Dashcam.");
+  addPair("teslacam", "wraps", "compatible", "community", "A user ran Wraps and LicensePlate at the root of a drive already holding working dashcam and sentry video, and reported everything working after a re-read.");
+  addPair("teslacam", "licenseplate", "compatible", "community", "A user ran Wraps and LicensePlate at the root of a drive already holding working dashcam and sentry video, and reported everything working after a re-read.");
+  addPair("music", "lightshow", "compatible", "community", "A user ran Music, Boombox, and LightShow folders on one volume; the shows did not appear at first but worked after a soft reset and a software update.");
+  addPair("music", "boombox", "incompatible", "disputed", "Tesla says the drive can only contain one folder, yet a community three-partition layout runs Boombox and Music together on one volume with all functions reportedly working.");
+  addPair("music", "wraps", "unknown", "none", "No source addresses this pairing either way.");
+  addPair("music", "licenseplate", "unknown", "none", "No source addresses this pairing either way.");
+  addPair("lightshow", "boombox", "incompatible", "disputed", "Tesla says the drive can only contain one folder, yet a community layout puts Boombox and LightShow on one volume and reports it working.");
+  addPair("lightshow", "wraps", "compatible", "community", "mphacker/TeslaUSB stores lock chimes, custom wrap images, and light shows together on one drive.");
+  addPair("lightshow", "licenseplate", "compatible", "community", "mphacker/TeslaUSB stores license plate images on the same drive as LightShow.");
+  addPair("boombox", "wraps", "incompatible", "tesla", "Tesla's Boombox instructions state the drive can only contain one folder and cannot be shared with other features.");
+  addPair("boombox", "licenseplate", "incompatible", "tesla", "Tesla's Boombox instructions state the drive can only contain one folder and cannot be shared with other features.");
+  addPair("wraps", "licenseplate", "compatible", "community", "A user creates both LicensePlate and Wraps folders on one PaintShop partition.");
+
+  function severityFor(pair) {
+    if (pair.status === "compatible" && pair.source === "tesla") return null;
+    if (pair.status === "incompatible") return "err";
+    if (pair.status === "disputed") return "warn";
+    if (pair.status === "compatible" && pair.source === "community") return "info";
+    return "warn";
+  }
+
+  function messageFor(aLabel, bLabel, pair, sev) {
+    if (sev === "err") return "Tesla documentation says <strong>" + aLabel + "</strong> and <strong>" + bLabel + "</strong> should not share a drive: " + pair.note;
+    if (sev === "warn" && pair.status === "disputed") return "Disputed pairing of <strong>" + aLabel + "</strong> and <strong>" + bLabel + "</strong>: " + pair.note;
+    if (sev === "warn") return "Undocumented pairing of <strong>" + aLabel + "</strong> and <strong>" + bLabel + "</strong>: " + pair.note;
+    return "Not confirmed directly by Tesla, but community-reported to work: <strong>" + aLabel + "</strong> and <strong>" + bLabel + "</strong> &mdash; " + pair.note;
+  }
+
+  // ---------- element refs ----------
+  var advertisedGBEl = document.getElementById("advertisedGB");
+  var usableGBEl = document.getElementById("usableGB");
+  var sdcardsEl = document.getElementById("sdcards");
+  var driveWarningsEl = document.getElementById("driveWarnings");
+  var bucketsEl = document.getElementById("buckets");
+  var checkboxRowsEl = document.getElementById("checkboxRows");
+  var trayEl = document.getElementById("tray");
+  var modeHintEl = document.getElementById("modeHint");
+  var compatWarningsEl = document.getElementById("compatWarnings");
+  var usableEditedManually = false;
+  var groupingMode = "drag";
+
+  function fmt(n) { return Math.round(n).toLocaleString(); }
+  function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function attr(s) { return esc(s).replace(/"/g, "&quot;"); }
+  function infoIcon(text) { return '<i class="info-icon" data-tip="' + attr(text) + '">i</i>'; }
+
+  // ---------- bucket state ----------
+  var buckets = DEFAULT_BUCKETS.map(function (b) { return b.slice(); });
+  var notIncluded = [];
+
+  function removeFeatureEverywhere(id) {
+    buckets.forEach(function (b) {
+      var idx = b.indexOf(id);
+      if (idx !== -1) b.splice(idx, 1);
+    });
+    var ti = notIncluded.indexOf(id);
+    if (ti !== -1) notIncluded.splice(ti, 1);
+    buckets = buckets.filter(function (b) { return b.length > 0; });
+  }
+
+  // Takes the destination by object reference: removeFeatureEverywhere() drops a bucket that
+  // this move empties, which shifts every later index.
+  function moveFeatureToBucketRef(id, ref) {
+    removeFeatureEverywhere(id);
+    if (buckets.indexOf(ref) === -1) buckets.push([id]);
+    else ref.push(id);
+  }
+
+  function moveFeatureToBucket(id, bucketIndex) {
+    if (bucketIndex === -1 || bucketIndex >= buckets.length) {
+      removeFeatureEverywhere(id);
+      buckets.push([id]);
+      return;
+    }
+    moveFeatureToBucketRef(id, buckets[bucketIndex]);
+  }
+
+  function moveFeatureToTray(id) {
+    removeFeatureEverywhere(id);
+    notIncluded.push(id);
+  }
+
+  // ---------- groups ----------
+  function computeGroups() {
+    return buckets.map(function (ids, i) {
+      var sorted = ids.slice().sort(function (a, b) { return FEATURE_ORDER.indexOf(a) - FEATURE_ORDER.indexOf(b); });
+      return { slot: i + 1, ids: sorted };
+    });
+  }
+
+  function defaultLabelFor(ids) {
+    var key = ids.slice().sort().join(",");
+    if (KNOWN_LABELS[key]) return KNOWN_LABELS[key];
+    return ids.map(function (id) { return FEATURES[id].short; }).join("_");
+  }
+
+  // ---------- compatibility warnings ----------
+  var SEVERITY_RANK = { info: 1, warn: 2, err: 3 };
+
+  function severityForGroup(g) {
+    var worst = null;
+    for (var i = 0; i < g.ids.length; i++) {
+      for (var j = i + 1; j < g.ids.length; j++) {
+        var sev = severityFor(COMPAT[pairKey(g.ids[i], g.ids[j])]);
+        if (sev && (!worst || SEVERITY_RANK[sev] > SEVERITY_RANK[worst])) worst = sev;
+      }
+    }
+    return worst;
+  }
+
+  function renderCompatWarnings(groups, unallocatedMB) {
+    var notices = [];
+    groups.forEach(function (g) {
+      for (var i = 0; i < g.ids.length; i++) {
+        for (var j = i + 1; j < g.ids.length; j++) {
+          var pair = COMPAT[pairKey(g.ids[i], g.ids[j])];
+          var sev = severityFor(pair);
+          if (sev) {
+            notices.push({ sev: sev, html: messageFor(FEATURES[g.ids[i]].label, FEATURES[g.ids[j]].label, pair, sev) });
+          }
+        }
+      }
+    });
+    notices.sort(function (a, b) { return SEVERITY_RANK[b.sev] - SEVERITY_RANK[a.sev]; });
+    var html = notices.map(function (n) { return '<div class="notice ' + n.sev + '">' + n.html + "</div>"; }).join("");
+    // Nothing is claiming the leftover space, so lead with how much would go to waste.
+    if (unallocatedMB > 0) {
+      html = '<div class="notice info">No partition is set to <strong>Fill</strong>, so ' + fmt(unallocatedMB) +
+        " MB (" + (unallocatedMB / 1024).toFixed(2) + " GB) of your drive's usable capacity would be left unallocated. " +
+        "Tick <strong>Fill</strong> on the partition that should claim it, or raise a size above.</div>" + html;
+    }
+    compatWarningsEl.innerHTML = html;
+  }
+
+  // ---------- capacity estimates ----------
+  // Features with documented caps are assumed to be filled to those caps; whatever space is
+  // left over is split equally between the features that have no documented ceiling.
+  function cappedFootprintMB(id) {
+    var e = FEATURES[id].est;
+    return (e.maxItems * e.maxItemMB) + (e.extraMB || 0);
+  }
+
+  function unitFor(n, unit) { return Math.abs(n) === 1 ? unit.replace(/s$/, "") : unit; }
+
+  function nextPowerOfTwo(n) {
+    var p = 1;
+    while (p < n) p *= 2;
+    return p;
+  }
+
+  // The arithmetic behind one capped feature's ceiling, spelled out for the tooltip.
+  function footprintMath(id) {
+    var f = FEATURES[id], e = f.est;
+    var line = f.label + ": " + e.maxItems + " " + unitFor(e.maxItems, e.unit) + " at " + e.maxItemMB + " MB each";
+    if (e.extraMB) line += " plus " + e.extraMB + " MB for " + f.files.join(" and ");
+    return line + " = " + fmt(cappedFootprintMB(id)) + " MB";
+  }
+
+  // A partition whose features are all capped needs exactly their combined maximum, rounded
+  // up to the next power of two. Returns 0 when any feature has no documented ceiling, since
+  // an uncapped feature can always use whatever it is given.
+  function cappedTargetMB(ids) {
+    if (!ids.length) return 0;
+    var needed = 0;
+    for (var i = 0; i < ids.length; i++) {
+      var e = FEATURES[ids[i]].est;
+      if (!e || !e.maxItems) return 0;
+      needed += cappedFootprintMB(ids[i]);
+    }
+    return nextPowerOfTwo(needed);
+  }
+
+  // Certain over-allocation: every feature here has a documented maximum, so anything past
+  // that target can never be used.
+  function overAllocationMB(ids, sizeMB) {
+    var target = cappedTargetMB(ids);
+    return target && sizeMB > target ? sizeMB - target : 0;
+  }
+
+  function overAllocationMath(ids, sizeMB) {
+    var target = cappedTargetMB(ids);
+    var needed = 0;
+    ids.forEach(function (id) { needed += cappedFootprintMB(id); });
+    var lines = ids.map(footprintMath).join(". ");
+    return lines + ". " + (ids.length > 1 ? "Together " + fmt(needed) + " MB, rounded" : "Rounded") +
+      " up to the next power of two: " + fmt(target) + " MB. This partition is " + fmt(sizeMB) +
+      " MB, so " + fmt(sizeMB - target) + " MB of it can never be used.";
+  }
+
+  function estimatesFor(ids, sizeMB) {
+    var capped = [], uncapped = [];
+    ids.forEach(function (id) {
+      if (!FEATURES[id].est) return;
+      if (FEATURES[id].est.maxItems) capped.push(id); else uncapped.push(id);
+    });
+
+    var reserved = 0;
+    capped.forEach(function (id) { reserved += cappedFootprintMB(id); });
+    var share = uncapped.length ? Math.max(sizeMB - reserved, 0) / uncapped.length : 0;
+
+    // How many items each capped feature gets. Fixed extras such as LockChime.wav come off
+    // the top; the rest is split in proportion to each feature's footprint, then whatever
+    // that split rounds away is handed back out one item at a time so no space goes unused.
+    var cappedCount = {}, cappedShare = {}, cappedUsed = 0, fixedExtra = 0;
+    capped.forEach(function (id) { fixedExtra += FEATURES[id].est.extraMB || 0; });
+    var itemBudget = Math.max(sizeMB - fixedExtra, 0);
+    var itemReserve = Math.max(reserved - fixedExtra, 0);
+
+    capped.forEach(function (id) {
+      var e = FEATURES[id].est;
+      var mine = itemReserve ? itemBudget * ((e.maxItems * e.maxItemMB) / itemReserve) : 0;
+      cappedShare[id] = mine;
+      cappedCount[id] = sizeMB >= reserved ? e.maxItems : Math.min(Math.floor(mine / e.maxItemMB), e.maxItems);
+      cappedUsed += (cappedCount[id] * e.maxItemMB) + (e.extraMB || 0);
+    });
+
+    // Nothing should read as zero while a single item would still fit, so any feature the
+    // split rounded away gets one, smallest item first to fit as many features as possible.
+    capped.filter(function (id) { return !cappedCount[id]; })
+      .sort(function (a, b) { return FEATURES[a].est.maxItemMB - FEATURES[b].est.maxItemMB; })
+      .forEach(function (id) {
+        var e = FEATURES[id].est;
+        if (cappedUsed + e.maxItemMB > sizeMB) return;
+        cappedCount[id] = 1;
+        cappedUsed += e.maxItemMB;
+      });
+
+    // A count is exact only while the partition still has room to spare. Zero is never
+    // approximate: nothing fits, whatever the overhead.
+    var tight = sizeMB <= cappedUsed;
+
+    var out = [];
+    ids.forEach(function (id) {
+      var e = FEATURES[id].est;
+      if (!e) return;
+
+      if (e.maxItems) {
+        var foot = cappedFootprintMB(id);
+        var cN = cappedCount[id];
+        var label = (tight && cN ? "~" : "") + fmt(cN) + " of " + e.maxItems + " " + unitFor(e.maxItems, e.unit);
+        // The lock chime is content too, and it explains where a small partition's space went.
+        if (e.extraMB && sizeMB >= e.extraMB) label += " + " + FEATURES[id].files.join(" + ");
+        if (sizeMB >= reserved) {
+          out.push({
+            id: id, low: cN === 0, text: label,
+            math: e.math + " That needs " + foot + " MB on this partition."
+          });
+          return;
+        }
+        // Too small for every capped feature at its documented maximum: give each a share of
+        // the partition proportional to its footprint and report what that share holds.
+        var cShare2 = cappedShare[id];
+        out.push({
+          id: id, low: cN === 0, text: label,
+          math: e.math + " Filling it needs " + foot + " MB, but this partition is only " + fmt(sizeMB) +
+            " MB against the " + fmt(reserved) + " MB needed to fill every capped feature on it, so it gets " +
+            fmt(cShare2) + " MB \u2014 enough for about " + fmt(cN) + " of " + e.maxItems + " " + unitFor(e.maxItems, e.unit) + "."
+        });
+        return;
+      }
+
+      var shareNote = " This partition gives it " + fmt(share) + " MB" +
+        (capped.length ? " (after reserving " + fmt(reserved) + " MB for capped features)" : "") +
+        (uncapped.length > 1 ? ", an equal split with " + (uncapped.length - 1) + " other uncapped feature" + (uncapped.length > 2 ? "s" : "") : "") + ".";
+
+      // A feature whose per-item size depends on a format choice reports one line per format.
+      var variants = e.variants || [{ name: null, mb: e.perUnitMB }];
+      variants.forEach(function (v) {
+        var n = Math.floor(share / v.mb);
+        out.push({
+          id: id, low: n === 0,
+          text: (n ? "~" : "") + fmt(n) + " " + unitFor(n, e.unit) + (v.name ? " (" + v.name + ")" : ""),
+          math: e.math + shareNote + " At " + v.mb + " MB each, " + fmt(share) + " / " + v.mb +
+            " = about " + fmt(n) + " " + unitFor(n, e.unit) + (v.name ? " with " + v.name + "." : ".")
+        });
+      });
+    });
+    return out;
+  }
+
+  // ---------- chips and drop zones ----------
+  function makeChip(id, opts) {
+    opts = opts || {};
+    var chip = document.createElement("div");
+    chip.className = "chip" + (opts.draggable ? " draggable" : "");
+    chip.draggable = !!opts.draggable;
+    chip.dataset.feature = id;
+
+    var label = document.createElement("span");
+    label.textContent = FEATURES[id].label;
+    chip.appendChild(label);
+
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.title = opts.inTray ? "Include this feature" : "Leave this feature out";
+    btn.textContent = opts.inTray ? "+" : "\u2715";
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (opts.inTray) {
+        removeFeatureEverywhere(id);
+        buckets.push([id]);
+      } else {
+        moveFeatureToTray(id);
+      }
+      recalc();
+    });
+    chip.appendChild(btn);
+
+    if (opts.draggable) {
+      chip.addEventListener("dragstart", function (e) {
+        chip.classList.add("dragging");
+        e.dataTransfer.setData("text/plain", id);
+        e.dataTransfer.effectAllowed = "move";
+      });
+      chip.addEventListener("dragend", function () { chip.classList.remove("dragging"); });
+    }
+    return chip;
+  }
+
+  function wireDropZone(el, onDrop) {
+    el.addEventListener("dragover", function (e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      el.classList.add("dragover");
+    });
+    el.addEventListener("dragleave", function () { el.classList.remove("dragover"); });
+    el.addEventListener("drop", function (e) {
+      e.preventDefault();
+      el.classList.remove("dragover");
+      var id = e.dataTransfer.getData("text/plain");
+      if (id) onDrop(id);
+    });
+  }
+
+  // ---------- sizing state ----------
+  var sizingState = {};
+  var remainingSlot = "auto";
+
+  function ensureSizingDefaults(groups) {
+    var seen = {};
+    groups.forEach(function (g) {
+      seen[g.slot] = true;
+      if (!sizingState[g.slot] || sizingState[g.slot]._ids !== g.ids.join(",")) {
+        var totalSize = 0;
+        var maxAlloc = 4;
+        var hasSize = false;
+        g.ids.forEach(function (id) {
+          var f = FEATURES[id];
+          if (typeof f.defaultSizeMB === "number") { totalSize += f.defaultSizeMB; hasSize = true; }
+          if (f.defaultAllocKB > maxAlloc) maxAlloc = f.defaultAllocKB;
+        });
+        var sizeMB = cappedTargetMB(g.ids) || (hasSize ? totalSize : 256);
+        sizingState[g.slot] = {
+          _ids: g.ids.join(","),
+          label: defaultLabelFor(g.ids),
+          sizeMB: sizeMB,
+          sizeText: String(sizeMB),
+          labelText: defaultLabelFor(g.ids),
+          allocKB: maxAlloc
+        };
+      }
+    });
+    Object.keys(sizingState).forEach(function (slot) {
+      if (!seen[slot]) delete sizingState[slot];
+    });
+  }
+
+  function slotContainingTeslacam(groups) {
+    for (var i = 0; i < groups.length; i++) {
+      if (groups[i].ids.indexOf("teslacam") !== -1) return groups[i].slot;
+    }
+    return null;
+  }
+
+  // ---------- section 1 ----------
+  // microSD outline drawn as a path so the stroke follows every edge, including the keying
+  // notch and the chamfer above the contact end. Geometry matches the banner artwork.
+  function microSD(label) {
+    var pads = "";
+    var PAD_N = 8, PAD_W = 8, PAD_GAP = 2.3, PAD_X = 10, PAD_TOP = 106;
+    for (var i = 0; i < PAD_N; i++) {
+      var h = (i === 2 || i === 4) ? 36 : 28;
+      pads += '<rect class="pad" x="' + (PAD_X + i * (PAD_W + PAD_GAP)).toFixed(2) +
+        '" y="' + PAD_TOP + '" width="' + PAD_W + '" height="' + h + '" rx="2"/>';
+    }
+    return '<svg viewBox="0 0 110 150" role="img" aria-label="' + attr(label) + '">' +
+      '<path class="body" d="M 10 2 L 100 2 A 8 8 0 0 1 108 10' +
+      ' L 108 59.3 L 101.2 59.3 L 101.2 82.3 L 108 82.3' +   // keying notch
+      ' L 108 99.9 L 96.6 113.6' +                            // chamfer
+      ' L 96.6 140 A 8 8 0 0 1 88.6 148 L 10 148' +
+      ' A 8 8 0 0 1 2 140 L 2 10 A 8 8 0 0 1 10 2 Z"/>' +
+      pads +
+      '<text class="capt" x="55" y="46">' + esc(label) + "</text></svg>";
+  }
+
+  function renderCapacityCards(advertisedGB) {
+    sdcardsEl.innerHTML = "";
+    CAPACITY_PRESETS.forEach(function (gb) {
+      var card = document.createElement("div");
+      card.className = "sdcard" + (Number(advertisedGB) === gb ? " selected" : "");
+      card.title = "Set advertised capacity to " + (gb >= 1024 ? (gb / 1024) + " TB" : gb + " GB");
+
+      card.innerHTML = microSD(gb >= 1024 ? (gb / 1024) + " TB" : gb + " GB");
+
+      card.addEventListener("click", function () {
+        advertisedGBEl.value = String(gb);
+        usableEditedManually = false;
+        recalc();
+      });
+      sdcardsEl.appendChild(card);
+    });
+  }
+
+  // Tesla states its minimums in advertised capacity, the number a drive is sold under, so
+  // the check uses that rather than the smaller usable figure.
+  function renderDriveWarnings(advertisedGB, activeIds) {
+    var notices = [];
+    activeIds.forEach(function (id) {
+      var min = FEATURES[id].minDriveGB;
+      if (min && advertisedGB > 0 && advertisedGB < min) {
+        notices.push('<div class="notice err"><strong>' + FEATURES[id].label + "</strong> requires a drive advertised as " +
+          min + " GB or larger, but this drive is advertised as " + advertisedGB + " GB" +
+          infoIcon("Tesla states this minimum as the capacity the drive is sold under, so it is checked against the advertised number. A 64 GB drive reports only about 59.6 GB usable once formatted and still qualifies.") +
+          ". Use a larger drive, or remove " + FEATURES[id].label + " in the next section.</div>");
+      }
+    });
+    driveWarningsEl.innerHTML = notices.join("");
+  }
+
+  // ---------- section 2 ----------
+  // Both grouping views share this builder, so their controls cannot drift apart.
+  function buildPartitionFields(g, groups) {
+    var st = sizingState[g.slot];
+    var fields = document.createElement("div");
+    fields.className = "partition-fields";
+
+    // Inputs keep exactly what was typed, including nothing at all, so a value can be
+    // cleared and retyped. The parsed value falls back so the rest of the page stays sane,
+    // and the field is outlined until it holds something usable again.
+    var labelField = document.createElement("div");
+    labelField.className = "field";
+    labelField.innerHTML = "<span>Volume label</span>";
+    var labelInput = document.createElement("input");
+    labelInput.type = "text";
+    labelInput.id = "label-" + g.slot;
+    labelInput.value = st.labelText;
+    labelInput.maxLength = 11;
+    if (!st.labelText.trim()) labelInput.className = "invalid";
+    labelInput.addEventListener("input", function () {
+      st.labelText = labelInput.value;
+      st.label = st.labelText.trim() || defaultLabelFor(g.ids);
+      recalc();
+    });
+    labelField.appendChild(labelInput);
+    fields.appendChild(labelField);
+
+    var isRemaining = (remainingSlot === "auto" && slotContainingTeslacam(groups) === g.slot) || String(remainingSlot) === String(g.slot);
+
+    var ests = estimatesFor(g.ids, g._effectiveSizeMB);
+    var tooSmall = ests.some(function (e) { return e.low; });
+
+    var sizeField = document.createElement("div");
+    sizeField.className = "field field-size";
+    sizeField.innerHTML = "<span>Size (MB)</span>";
+    var sizeRow = document.createElement("div");
+    sizeRow.className = "size-row";
+    if (!isRemaining) {
+      var sizeInput = document.createElement("input");
+      sizeInput.type = "text";
+      sizeInput.inputMode = "numeric";
+      sizeInput.id = "size-" + g.slot;
+      sizeInput.value = st.sizeText;
+      if (!st.sizeMB) sizeInput.className = "invalid";
+      else if (tooSmall) sizeInput.className = "low";
+      sizeInput.addEventListener("input", function () {
+        st.sizeText = sizeInput.value;
+        var n = parseInt(st.sizeText, 10);
+        st.sizeMB = (/^\s*\d+\s*$/.test(st.sizeText) && n >= 1) ? n : 0;
+        recalc();
+      });
+      sizeRow.appendChild(sizeInput);
+    } else {
+      // The same field, borderless and read-only: the number is whatever the others leave.
+      var autoInput = document.createElement("input");
+      autoInput.type = "text";
+      autoInput.id = "size-" + g.slot;
+      autoInput.value = fmt(g._effectiveSizeMB) + " (REMAINING)";
+      autoInput.readOnly = true;
+      if (tooSmall) autoInput.className = "low";
+      sizeRow.appendChild(autoInput);
+    }
+    var spareMB = overAllocationMB(g.ids, g._effectiveSizeMB);
+    if (spareMB) {
+      var over = document.createElement("span");
+      over.className = "over";
+      over.innerHTML = "Over-allocated" + infoIcon(overAllocationMath(g.ids, g._effectiveSizeMB));
+      sizeRow.appendChild(over);
+    }
+    sizeField.appendChild(sizeRow);
+
+    var allocField = document.createElement("div");
+    allocField.className = "field";
+    allocField.innerHTML = "<span>Allocation unit (KB)</span>";
+    var allocSelect = document.createElement("select");
+    allocSelect.id = "alloc-" + g.slot;
+    [4, 8, 16, 32, 64, 128, 256].forEach(function (kb) {
+      var opt = document.createElement("option");
+      opt.value = String(kb);
+      opt.textContent = String(kb);
+      if (kb === st.allocKB) opt.selected = true;
+      allocSelect.appendChild(opt);
+    });
+    allocSelect.addEventListener("change", function () { st.allocKB = parseInt(allocSelect.value, 10); recalc(); });
+    allocField.appendChild(allocSelect);
+    fields.appendChild(allocField);
+    fields.appendChild(sizeField);
+
+    return fields;
+  }
+
+  // Partition number, with the remaining-space toggle centred beneath it.
+  function buildPartitionHeader(g, groups, index) {
+    var head = document.createElement("div");
+    head.className = "bucket-head";
+
+    var lbl = document.createElement("span");
+    lbl.className = "bucket-label";
+    lbl.textContent = "Partition " + (index + 1);
+    head.appendChild(lbl);
+
+    var isRemaining = (remainingSlot === "auto" && slotContainingTeslacam(groups) === g.slot) || String(remainingSlot) === String(g.slot);
+    var toggle = document.createElement("label");
+    toggle.className = "fill-toggle" + (isRemaining ? " on" : "");
+    var chk = document.createElement("input");
+    chk.type = "checkbox";
+    chk.id = "rem-" + g.slot;
+    chk.checked = isRemaining;
+    chk.addEventListener("change", function () {
+      remainingSlot = chk.checked ? String(g.slot) : "none";
+      recalc();
+    });
+    toggle.appendChild(chk);
+    toggle.appendChild(document.createTextNode("Fill"));
+
+    // Outside the <label>, so reading the icon cannot toggle the checkbox.
+    var wrap = document.createElement("span");
+    wrap.className = "fill-wrap";
+    wrap.appendChild(toggle);
+    wrap.insertAdjacentHTML("beforeend", infoIcon("Allocates all remaining drive space not explicitly allocated to the other partitions to this partition." +
+      (g.ids.indexOf("teslacam") !== -1 ? " TeslaCam is the recommended choice, since it benefits most from the extra room." : "")));
+    head.appendChild(wrap);
+    return head;
+  }
+
+  // Each feature's own estimate lines, to sit beside that feature rather than under Size.
+  function estimateListFor(id, ests) {
+    var mine = ests.filter(function (e) { return e.id === id; });
+    if (!mine.length) return null;
+    var ul = document.createElement("ul");
+    ul.className = "feat-est";
+    mine.forEach(function (e) {
+      var li = document.createElement("li");
+      if (e.low) li.className = "low";
+      li.innerHTML = esc(e.text) + infoIcon(e.math);
+      ul.appendChild(li);
+    });
+    return ul;
+  }
+
+  function renderDragUI(groups) {
+    bucketsEl.innerHTML = "";
+    groups.forEach(function (g, i) {
+      var box = document.createElement("div");
+      box.className = "bucket";
+      var boxSeverity = severityForGroup(g);
+      if (boxSeverity) box.classList.add("bucket-" + boxSeverity);
+
+      box.appendChild(buildPartitionHeader(g, groups, i));
+
+      var featBlock = document.createElement("div");
+      featBlock.className = "feat-block";
+      var chipsLbl = document.createElement("span");
+      chipsLbl.className = "bucket-sublabel";
+      chipsLbl.textContent = "Features";
+      featBlock.appendChild(chipsLbl);
+
+      var chipsWrap = document.createElement("div");
+      chipsWrap.className = "bucket-chips";
+      var ests = estimatesFor(g.ids, g._effectiveSizeMB);
+      g.ids.forEach(function (id) {
+        var chiprow = document.createElement("div");
+        chiprow.className = "chiprow";
+        chiprow.appendChild(makeChip(id, { draggable: true }));
+        var list = estimateListFor(id, ests);
+        if (list) chiprow.appendChild(list);
+        chipsWrap.appendChild(chiprow);
+      });
+      featBlock.appendChild(chipsWrap);
+      box.appendChild(featBlock);
+
+      box.appendChild(buildPartitionFields(g, groups));
+      wireDropZone(box, function (id) { moveFeatureToBucket(id, i); recalc(); });
+      bucketsEl.appendChild(box);
+    });
+
+    var addBox = document.createElement("div");
+    addBox.className = "addbucket";
+    addBox.textContent = "+ Drop here for a new partition";
+    wireDropZone(addBox, function (id) { moveFeatureToBucket(id, -1); recalc(); });
+    bucketsEl.appendChild(addBox);
+  }
+
+  function renderCheckboxUI(groups) {
+    checkboxRowsEl.innerHTML = "";
+
+    groups.forEach(function (g, i) {
+      var row = document.createElement("div");
+      row.className = "prow";
+      var sev = severityForGroup(g);
+      if (sev) row.classList.add("bucket-" + sev);
+
+      row.appendChild(buildPartitionHeader(g, groups, i));
+
+      var featField = document.createElement("div");
+      featField.className = "feat-block";
+      featField.innerHTML = '<span class="bucket-sublabel">Features</span>';
+      var checks = document.createElement("div");
+      checks.className = "featchecks";
+      var ref = buckets[i];
+      var ests = estimatesFor(g.ids, g._effectiveSizeMB);
+      FEATURE_ORDER.forEach(function (id) {
+        var on = g.ids.indexOf(id) !== -1;
+        var wrap = document.createElement("span");
+        wrap.className = "featcheck-wrap";
+        var lab = document.createElement("label");
+        lab.className = "featcheck" + (on ? " on" : "");
+        var cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.id = "feat-" + g.slot + "-" + id;
+        cb.checked = on;
+        // A feature lives on exactly one partition: ticking it here moves it off whichever
+        // partition holds it now, unticking it excludes it from the drive.
+        cb.addEventListener("change", function () {
+          if (cb.checked) moveFeatureToBucketRef(id, ref);
+          else moveFeatureToTray(id);
+          recalc();
+        });
+        lab.appendChild(cb);
+        lab.appendChild(document.createTextNode(FEATURES[id].label));
+        wrap.appendChild(lab);
+        var list = estimateListFor(id, ests);
+        if (list) wrap.appendChild(list);
+        checks.appendChild(wrap);
+      });
+      featField.appendChild(checks);
+      row.appendChild(featField);
+      row.appendChild(buildPartitionFields(g, groups));
+      checkboxRowsEl.appendChild(row);
+    });
+
+    var addRow = document.createElement("button");
+    addRow.type = "button";
+    addRow.className = "reset";
+    addRow.style.marginTop = "6px";
+    addRow.textContent = "+ Add a partition";
+    addRow.disabled = !notIncluded.length;
+    addRow.title = notIncluded.length
+      ? "Moves " + FEATURES[notIncluded[0]].label + " out of Excluded features and into a partition of its own"
+      : "Every feature is already assigned to a partition";
+    addRow.addEventListener("click", function () {
+      if (!notIncluded.length) return;
+      var id = notIncluded[0];
+      removeFeatureEverywhere(id);
+      buckets.push([id]);
+      recalc();
+    });
+    checkboxRowsEl.appendChild(addRow);
+  }
+
+  function renderPartitions(groups) {
+    var draggable = groupingMode === "drag";
+    bucketsEl.style.display = draggable ? "" : "none";
+    checkboxRowsEl.style.display = draggable ? "none" : "";
+
+    if (draggable) { checkboxRowsEl.innerHTML = ""; renderDragUI(groups); }
+    else { bucketsEl.innerHTML = ""; renderCheckboxUI(groups); }
+
+    trayEl.innerHTML = "";
+    notIncluded.forEach(function (id) { trayEl.appendChild(makeChip(id, { inTray: true, draggable: draggable })); });
+    if (draggable) wireDropZone(trayEl, function (id) { moveFeatureToTray(id); recalc(); });
+  }
+
+  // ---------- main recalc ----------
+  // Rebuilding section 2 destroys whatever input is being typed in, so the focused element
+  // and caret are remembered across the rebuild.
+  function captureFocus() {
+    var el = document.activeElement;
+    if (!el || !el.id) return null;
+    var snap = { id: el.id, start: null, end: null };
+    try {
+      if (typeof el.selectionStart === "number") { snap.start = el.selectionStart; snap.end = el.selectionEnd; }
+    } catch (e) { /* number inputs throw on selection access in some browsers */ }
+    return snap;
+  }
+
+  function restoreFocus(snap) {
+    if (!snap) return;
+    var el = document.getElementById(snap.id);
+    if (!el) return;
+    el.focus();
+    if (snap.start !== null && el.setSelectionRange) {
+      try { el.setSelectionRange(snap.start, snap.end); } catch (e) { /* not supported on this input type */ }
+    }
+  }
+
+  function recalc() {
+    var focusSnap = captureFocus();
+    var advertisedGB = parseFloat(advertisedGBEl.value) || 0;
+    if (!usableEditedManually) {
+      usableGBEl.value = (advertisedGB * GB_TO_USABLE).toFixed(2);
+    }
+    var usableGB = parseFloat(usableGBEl.value) || 0;
+    var usableMB = Math.round(usableGB * 1024);
+
+    var groups = computeGroups();
+    ensureSizingDefaults(groups);
+
+    var effectiveRemaining = remainingSlot;
+    if (remainingSlot === "auto") {
+      var tSlot = slotContainingTeslacam(groups);
+      effectiveRemaining = tSlot !== null ? String(tSlot) : "none";
+    }
+
+    var fixedTotalMB = 0;
+    groups.forEach(function (g) {
+      if (String(effectiveRemaining) !== String(g.slot)) fixedTotalMB += sizingState[g.slot].sizeMB;
+    });
+    var remainingMB = usableMB - fixedTotalMB;
+
+    // Resolve each partition's effective size first so the estimates can use it.
+    groups.forEach(function (g) {
+      g._effectiveSizeMB = String(effectiveRemaining) === String(g.slot)
+        ? Math.max(remainingMB, 0)
+        : sizingState[g.slot].sizeMB;
+    });
+
+    var activeIds = [];
+    groups.forEach(function (g) { activeIds = activeIds.concat(g.ids); });
+
+    advertisedGBEl.className = advertisedGB > 0 ? "" : "invalid";
+    usableGBEl.className = usableGB > 0 ? "" : "invalid";
+
+    renderCapacityCards(advertisedGB);
+    renderDriveWarnings(advertisedGB, activeIds);
+    renderPartitions(groups);
+    renderCompatWarnings(groups, String(effectiveRemaining) === "none" && groups.length ? remainingMB : 0);
+
+    var partitions = groups.map(function (g) {
+      var st = sizingState[g.slot];
+      var folders = [], files = [];
+      g.ids.forEach(function (id) {
+        folders = folders.concat(FEATURES[id].folders);
+        files = files.concat(FEATURES[id].files);
+      });
+      return {
+        slot: g.slot, ids: g.ids, label: st.label, allocKB: st.allocKB,
+        folders: folders, files: files,
+        auto: String(effectiveRemaining) === String(g.slot),
+        sizeMB: g._effectiveSizeMB
+      };
+    });
+
+    var status;
+    var hasAuto = partitions.some(function (p) { return p.auto; });
+    if (remainingMB < 0) {
+      status = { level: "err", text: "Your fixed-size partitions add up to " + fmt(fixedTotalMB) + " MB, which is " + fmt(Math.abs(remainingMB)) + " MB more than your " + fmt(usableMB) + " MB drive. Reduce a size above." };
+    } else if (!hasAuto && remainingMB > 0 && partitions.length) {
+      status = { level: "warn", text: fmt(remainingMB) + " MB will be left unallocated because no partition is set to use the remaining drive space. Pick one above, or increase a size, to use all the space." };
+    } else if (hasAuto && remainingMB === 0) {
+      status = { level: "warn", text: "The remaining-space partition would be created with 0 MB &mdash; your fixed partitions already use the entire drive." };
+    } else if (partitions.length) {
+      var detail;
+      if (hasAuto) {
+        var autoP = partitions.filter(function (p) { return p.auto; })[0];
+        detail = ", with " + (fixedTotalMB / 1024).toFixed(2) + " GB (" + fmt(fixedTotalMB) + " MB) explicitly allocated and the remaining " +
+          (remainingMB / 1024).toFixed(2) + " GB (" + fmt(remainingMB) + " MB) allocated to <strong>" + esc(autoP.label) + "</strong>.";
+      } else {
+        detail = ", fully allocated as specified above.";
+      }
+      status = { level: "ok", text: "This plan fits within your " + advertisedGB + " GB drive's " + usableGB + " GB (" + fmt(usableMB) + " MB) usable capacity" + detail };
+    } else {
+      status = { level: "warn", text: "Include at least one feature above." };
+    }
+
+    renderTable(partitions, usableGB);
+    renderStatus(status);
+    renderGraphicalSteps(partitions, usableGB);
+    renderCommandLineSteps(partitions, usableGB);
+
+    restoreFocus(focusSnap);
+  }
+
+  // ---------- File Requirements ----------
+  function requirementsFor(ids) {
+    return ids.map(function (id) {
+      var f = FEATURES[id];
+      var r = f.req || {};
+      var rows = [];
+      if (r.types) rows.push(["File types", r.types]);
+      if (r.maxFiles) rows.push(["Maximum files", r.maxFiles]);
+      if (r.maxSize) rows.push(["Maximum file size", r.maxSize]);
+      if (r.naming) rows.push(["Naming", r.naming]);
+      if (r.dimensions) rows.push(["Dimensions", r.dimensions]);
+      if (r.duration) rows.push(["Duration", r.duration]);
+      if (r.drive) rows.push(["Drive", r.drive]);
+
+      var html = ids.length > 1 ? "<strong>" + f.label + "</strong>" : "";
+      if (r.lead) html += (html ? "<br>" : "") + r.lead;
+      if (rows.length) {
+        html += '<ul class="reqs">' + rows.map(function (row) {
+          return "<li><strong>" + row[0] + ":</strong> " + row[1] + "</li>";
+        }).join("") + "</ul>";
+      }
+      if (r.caveat) html += '<div style="color:var(--muted);font-size:0.92em;">' + r.caveat + "</div>";
+      html += '<div style="color:var(--muted);font-size:0.92em;">Source: <a href="' + f.source.href + '" target="_blank" rel="noopener">' + f.source.text + "</a></div>";
+      return html;
+    }).join('<hr style="border:none;border-top:1px solid var(--border);margin:8px 0;">');
+  }
+
+  // Requirements flattened to plain text so they can ride in a title attribute.
+  function requirementsText(ids) {
+    var holder = document.createElement("div");
+    holder.innerHTML = requirementsFor(ids).replace(/<\/li>/g, "\n").replace(/<li>/g, "\u2022 ")
+      .replace(/<hr[^>]*>/g, "\n\u2014\u2014\u2014\n").replace(/<br>/g, "\n").replace(/<\/div>/g, "\n");
+    return holder.textContent.replace(/\n{3,}/g, "\n\n").trim();
+  }
+
+  // The largest partition takes the first colour; the rest follow in descending size order.
+  function partColorMap(partitions) {
+    var map = [];
+    partitions.map(function (p, i) { return { i: i, mb: p.sizeMB || 0 }; })
+      .sort(function (a, b) { return b.mb - a.mb || a.i - b.i; })
+      .forEach(function (o, rank) { map[o.i] = "var(--p" + ((rank % 8) + 1) + ")"; });
+    return map;
+  }
+
+  // Main bar is strictly to scale, so partitions a few MB wide render as slivers. Those get a
+  // second bar underneath, scaled against each other, with a wedge marking where they sit above.
+  // Labels are written into every segment and then hidden by measurement (see fitBarLabels).
+  function renderPartitionBar(partitions, colors, usableGB) {
+    var total = partitions.reduce(function (t, p) { return t + (p.sizeMB || 0); }, 0);
+    if (!partitions.length || total <= 0) return "";
+
+    // A value that rounds away to 0.0 is shown as <0.1 rather than as a flat zero.
+    function dp1(v, unit) {
+      var t = v.toFixed(1);
+      // Percent sits tight against the number; unit abbreviations take a space.
+      return (t === "0.0" && v > 0 ? "<0.1" : t) + (unit === "%" ? "" : " ") + unit;
+    }
+
+    function sizeText(mb) {
+      return fmt(mb) + " MB / " + dp1(mb / 1024, "GB") + " (" + dp1(mb / total * 100, "%") + ")";
+    }
+
+    function seg(i) {
+      var p = partitions[i], mb = p.sizeMB || 0;
+      return '<div class="partseg" style="flex-grow:' + mb + ';--rc:' + colors[i] + '"' +
+        ' title="' + attr(p.label + " \u2014 " + sizeText(mb)) + '">' +
+        '<span class="partseg-label">' + esc(p.label) + "</span></div>";
+    }
+
+    var all = partitions.map(function (p, i) { return i; });
+    var head = '<div class="partbar-head">USB DRIVE - ' + esc(String(usableGB)) + ' GB</div>';
+
+    function bar(cls, inner) { return '<div class="partbar ' + cls + '">' + inner + "</div>"; }
+
+    // Anything under 6% cannot hold its own name on the main bar; those get expanded below.
+    var small = all.filter(function (i) { return (partitions[i].sizeMB || 0) / total * 100 < 6; });
+    var smallTotal = small.reduce(function (t, i) { return t + (partitions[i].sizeMB || 0); }, 0);
+    if (small.length < 2 || smallTotal <= 0) {
+      return '<div class="partbar-only">' + head + bar("partbar-main", all.map(seg).join("")) + "</div>";
+    }
+
+    // The bars group the smallest partitions into one outlined placeholder at the left edge,
+    // whatever order the plan lists them in; the table below keeps the plan's own order.
+    var slot = '<div class="partseg partzoom-slot" style="flex-grow:' + smallTotal + '"' +
+      ' title="' + attr(small.length + " smallest partitions \u2014 " + sizeText(smallTotal)) + '">' +
+      '<span class="partseg-label">' + small.length + " partitions</span></div>";
+
+    var mainInner = slot +
+      all.filter(function (i) { return small.indexOf(i) === -1; }).map(seg).join("");
+
+    // A popover-style pointer under the placeholder ties the two together: it stays legible
+    // however narrow the source segment is, which a wedge or connector lines do not.
+    // The placeholder spans 0 .. its share of the drive, so its centre is half that.
+    var slotMid = (smallTotal / total * 50).toFixed(3);
+    var detail = '<div class="partzoom-frame" style="--zx:clamp(14px,' + slotMid + '%,calc(100% - 14px))">' +
+      bar("partbar-detail", small.map(seg).join("")) + "</div>";
+    var foot = '<div class="partbar-foot">' + small.length + " SMALLEST PARTITIONS - " +
+      dp1(smallTotal / 1024, "GB") + " (" + dp1(smallTotal / total * 100, "%") + ")</div>";
+
+    return head + bar("partbar-main", mainInner) + detail + foot;
+  }
+
+  // A label is shown only where the segment is actually wide enough to hold it.
+  function fitBarLabels() {
+    var segs = document.querySelectorAll(".partseg");
+    for (var i = 0; i < segs.length; i++) {
+      var lab = segs[i].querySelector(".partseg-label");
+      if (!lab) continue;
+      lab.hidden = false;
+      if (lab.scrollWidth + 6 > segs[i].clientWidth) lab.hidden = true;
+    }
+  }
+
+  function renderTable(partitions, usableGB) {
+    var colors = partColorMap(partitions);
+    var html = renderPartitionBar(partitions, colors, usableGB) + '<div class="table-scroll"><table class="plan"><thead><tr><th>Partition</th><th>Size (MB)</th><th>Unit (KB)' +
+      infoIcon("Allocation unit size: the smallest block of space the file system will hand to a file. A larger unit wastes less overhead on big files, a smaller one wastes less space on small files.") +
+      '</th><th>Folder(s)</th><th>Files' +
+      infoIcon("File requirements for the content on this partition: types, counts, size limits, naming, and dimensions.") +
+      '</th></tr></thead><tbody>';
+    if (!partitions.length) {
+      html += '<tr><td colspan="5">Include at least one feature above.</td></tr>';
+    }
+    partitions.forEach(function (p, i) {
+      var folders = p.folders.length
+        ? p.folders.map(function (f) { return '<code class="inline">' + f + "</code>"; }).join(" ")
+        : "None required";
+      html += '<tr style="--rc:' + colors[i] + '"><td><strong>' + esc(p.label) + "</strong></td><td class=\"num\">" + fmt(p.sizeMB) +
+        "</td><td class=\"num\">" + p.allocKB + "</td><td>" + folders +
+        '</td><td class="req"><span class="req-icon" data-tip="' + attr(requirementsText(p.ids)) + '">&#128196;</span></td></tr>';
+    });
+    html += "</tbody></table></div>";
+    document.getElementById("planTable").innerHTML = html;
+    fitBarLabels();
+  }
+
+  function renderStatus(status) {
+    document.getElementById("planStatus").innerHTML = '<div class="notice ' + status.level + '">' + status.text + "</div>";
+  }
+
+  // ---------- instructions ----------
+  // Disk Management summarizes a partition in GB once it reaches 1 GB, and in MB below that.
+  // Sizes are entered in MB, so the verification steps restate them as displayed.
+  function dmSize(mb) {
+    return mb >= 1024 ? (mb / 1024).toFixed(2) + " GB" : fmt(mb) + " MB";
+  }
+
+  // diskpart prints its own way: plain MB (no separators) for smaller volumes, whole GB for
+  // large ones. Distinct from dmSize(), which mirrors how Disk Management displays sizes.
+  function dpSize(mb) {
+    return mb >= 10240 ? Math.floor(mb / 1024) + " GB" : mb + " MB";
+  }
+
+  function paramList(items) {
+    return '<ul class="steps">' + items.map(function (i) {
+      return "<li>" + i[0] + ": <strong>" + i[1] + "</strong></li>";
+    }).join("") + "</ul>";
+  }
+
+  function renderGraphicalSteps(partitions, usableGB) {
+    var steps = [];
+    steps.push("Connect the USB drive to your Windows PC.");
+    steps.push('Open Disk Management: press the <span class="winkey">&#8862;</span> Windows key, type <code class="inline">diskmgmt</code>, and select <strong>Create and format hard disk partitions</strong>.' +
+      '<div class="notice err">&#128721; <strong>The following step deletes every partition and all data on the drive.</strong> Back up anything you want to keep first, and make sure you have selected your intended USB drive &mdash; not an internal disk or any other disk other than the intended Tesla USB drive.</div>');
+    steps.push("Identify your drive: Locate your USB drive in the list (the drive matching your drive's usable capacity, e.g., ~" + usableGB + " GB). Right-click its existing partition and select <strong>Delete Volume</strong>. If there are multiple partitions, delete them all until the entire drive indicates <strong>Unallocated</strong>.");
+
+    var fixed = partitions.filter(function (p) { return !p.auto; });
+    var autoP = partitions.filter(function (p) { return p.auto; });
+    var createdAny = false;
+
+    // The New Simple Volume wizard's Format Partition page does not expose exFAT, so every
+    // partition is created unformatted and then formatted in a second pass. Each step lists the
+    // parameters for both passes; the navigation itself is described in the notice above.
+    // Disk Management's Format dialog labels allocation units below 16K in bytes (4096, 8192)
+    // rather than 4K / 8K, so the graphical steps match what the dialog actually shows.
+    function allocLabel(kb) { return kb < 16 ? String(kb * 1024) : kb + "K"; }
+
+    function partitionStep(p, sizeValue, first, note) {
+      // The first partition spells out where to click; later ones list parameters only.
+      var createLead = first
+        ? "Create the partition: right-click the <strong>Unallocated</strong> space &rarr; <strong>New Simple Volume</strong>, then step through the wizard with these parameters:"
+        : "Create the partition with these parameters:";
+      var formatLead = first
+        ? "Format the partition: right-click the new <strong>RAW</strong> partition &rarr; <strong>Format&hellip;</strong>, then set these parameters:"
+        : "Format the partition with these parameters:";
+
+      var create = "<li>" + createLead + paramList([
+        ["Size", sizeValue],
+        ["Drive letter", "Accept the default or pick any available letter"],
+        ["Format", "Do not format this volume"]
+      ]) + "</li>";
+
+      var interstitial = first
+        ? '<li class="notice-li"><div class="notice info">Windows detects the new partition right away and may show an <strong>Insert disk</strong> message, or prompt you to format it. Close both windows &mdash; the partition is formatted in the next step.</div></li>'
+        : "";
+
+      var format = "<li>" + formatLead + paramList([
+        ["Volume label", esc(p.label)],
+        ["File system", "exFAT"],
+        ["Allocation unit size", allocLabel(p.allocKB)],
+        ["Perform a quick format", "Selected"]
+      ]) + "</li>";
+
+      return "Create and format the <strong>" + esc(p.label) + "</strong> partition:" + (note ? " " + note : "") +
+        '<ul class="steps">' + create + interstitial + format + "</ul>";
+    }
+
+    fixed.forEach(function (p) {
+      steps.push(partitionStep(p, p.sizeMB + " MB", !createdAny));
+      createdAny = true;
+    });
+
+    if (autoP.length) {
+      var a = autoP[0];
+      var note = createdAny ? esc(a.label) + " is created last because it claims whatever space is not used by the other partitions." : "";
+      steps.push(partitionStep(a, "Accept the default (remaining) size", !createdAny, note));
+      createdAny = true;
+    }
+
+    if (createdAny) {
+      var dmSizes = fixed.concat(autoP).map(function (p) {
+        // Fixed sizes are entered by the user and created exactly; the fill partition is
+        // whatever Windows has left over, so it can only ever be approximate.
+        return [esc(p.label), (p.auto ? "~" : "") + dmSize(p.sizeMB)];
+      });
+      steps.push("Verify all intended partitions are created. This screenshot depicts the default partitioning plan." +
+        paramList(dmSizes) +
+        '<div class="shot"><img src="screenshots/disk-management-all-partitions-created.png" ' +
+        'alt="Disk Management showing five completed exFAT partitions on one removable drive" loading="lazy"></div>');
+    }
+
+    if (partitions.length) {
+      // Folders are listed in partition order, so the list reads in the same order as the
+      // partitions above it however the user has arranged them.
+      var sub = '<ul class="steps">';
+      partitions.forEach(function (p) {
+        sub += "<li>On <strong>" + esc(p.label) + "</strong> &rarr; " + (p.folders.length
+          ? "new folder" + (p.folders.length > 1 ? "s" : "") + " named " + p.folders.map(function (f) { return '<code class="inline">' + f + "</code>"; }).join(" and ")
+          : "no folder needed; drop files in directly") + "</li>";
+      });
+      sub += "</ul>";
+      steps.push("Open File Explorer and create the required folders according to the partitioning plan:" + sub);
+      steps.push("Verify all required folders are created. This screenshot depicts the default partitioning plan, with drive letters optionally reassigned (right-click the partition in Disk Management &rarr; <strong>Change Drive Letter and Paths&hellip;</strong> &rarr; <strong>Change</strong> &rarr; pick a letter &rarr; <strong>OK</strong>)." +
+        '<div class="shot shot-sm"><img src="screenshots/file-explorer-required-folders.png" ' +
+        'alt="File Explorer showing each partition with its required folders" loading="lazy"></div>');
+    }
+
+    if (partitions.length) {
+      steps.push('Add content as detailed in the <a href="#sec-plan">Files column</a> of the Partitioning Plan table above.' + rootFileNote(partitions));
+      steps.push("Safely eject the drive, insert it into your Tesla's USB data port (e.g. glovebox or center console), and confirm all features work as expected.");
+    } else {
+      steps.push("Include at least one feature above to generate the remaining steps.");
+    }
+
+    var html = '<ol class="steps">' + steps.map(function (s) { return "<li>" + s + "</li>"; }).join("") + "</ol>";
+    document.getElementById("tab-graphical").innerHTML = html;
+  }
+
+  // Files like LockChime.wav belong at the root of their partition rather than in a folder.
+  function rootFileNote(partitions) {
+    var lines = partitions.filter(function (p) { return p.files.length; }).map(function (p) {
+      return "On <strong>" + esc(p.label) + "</strong> &rarr; place " +
+        p.files.map(function (f) { return '<code class="inline">' + f + "</code>"; }).join(" and ") +
+        " at the partition root, not inside a folder";
+    });
+    return lines.length ? '<ul class="steps"><li>' + lines.join("</li><li>") + "</li></ul>" : "";
+  }
+
+  function renderCodeBlock(text, fixedId) {
+    var id = fixedId || "code-" + Math.random().toString(36).slice(2, 9);
+    return '<div class="codebox"><button class="copy" data-target="' + id + '">Copy</button><pre class="block" id="' + id + '">' + esc(text) + "</pre></div>";
+  }
+
+  // Disk number the user verified from "list disk". Held outside renderCommandLineSteps so it
+  // survives the tab being rebuilt whenever the plan changes.
+  var cmdDiskNumber = "";
+  var cmdDiskConfirmed = false;
+
+  function selectDiskScript() {
+    var target = cmdDiskNumber === "" ? '# <-- REPLACE "#" WITH YOUR VERIFIED DISK NUMBER' : cmdDiskNumber;
+    return "select disk " + target + "\nclean\nconvert gpt";
+  }
+
+  function renderCommandLineSteps(partitions, usableGB) {
+    var steps = [];
+
+    steps.push("Connect the USB drive to your Windows PC.");
+    steps.push('Open an elevated Command Prompt: search <code class="inline">cmd</code> &rarr; right-click &rarr; <strong>Run as administrator</strong> &rarr; <strong>Yes</strong> at the User Account Control prompt.');
+
+    steps.push("Identify your drive:" +
+      renderCodeBlock("diskpart\nlist disk") +
+      "<p>Look at the <strong>Size</strong> column. Your USB drive will be indicated by your drive's usable capacity (e.g., ~" + usableGB + " GB). Note its <strong>Disk number</strong>.</p>" +
+      '<div class="shot"><img src="screenshots/diskpart-list-disk.png" alt="diskpart list disk output showing Disk 0 at 953 GB and Disk 1 at 238 GB" loading="lazy"></div>' +
+      "<p>In this example, <strong>Disk 1</strong> is the USB drive.</p>" +
+      '<div class="notice err">&#128721; <strong>CRITICAL &mdash; VERIFY THE DISK NUMBER BEFORE CONTINUING.</strong> The next command, <code class="inline">clean</code>, <strong>permanently erases everything</strong> on whatever disk number you select. There is no undo, no confirmation prompt, no recycle bin.' +
+      "<p>Before typing <code class=\"inline\">select disk</code>, stop and verify:</p>" +
+      "<ul><li>The size shown matches your USB drive specifically &mdash; <strong>not</strong> a much larger number that would indicate your PC's internal system drive</li>" +
+      "<li>You are looking at the drive currently plugged in, not relying on memory from a previous session</li></ul>" +
+      "<strong>If you are ever unsure:</strong> close diskpart <code class=\"inline\">exit</code>, safely eject the USB drive, reopen diskpart <code class=\"inline\">diskpart</code>, run <code class=\"inline\">list disk</code> again, and see which disk disappeared. That is your drive. Restart at Step 1.</div>");
+
+    steps.push('Clear the drive and convert it to GPT' + infoIcon("GPT is used instead of MBR because MBR caps you at 4 primary partitions without extended/logical partition workarounds - GPT handles partitions natively regardless of count.") + ":" +
+      '<div class="diskfield"><label for="cmdDiskNumber">Enter your USB drive&rsquo;s disk number</label>' +
+      '<div class="diskrow">' +
+      '<input type="number" id="cmdDiskNumber" min="0" step="1" autocomplete="off" placeholder="#" value="' + esc(cmdDiskNumber) + '">' +
+      '<button type="button" class="confirmdisk" id="confirmDisk"></button>' +
+      '</div></div>' +
+      '<div class="notice info" id="gateNotice">The remaining steps appear once you confirm your USB drive&rsquo;s disk number above.</div>' +
+      '<div id="selectDiskWrap" hidden>' + renderCodeBlock(selectDiskScript(), "code-select-disk") + '</div>');
+
+    // Everything from here on depends on the disk being confirmed, so it stays hidden
+    // until then rather than inviting the user to run commands out of order.
+    var gateFromIndex = steps.length;
+
+    if (!partitions.length) {
+      steps.push("Create and format each partition: include at least one feature above to generate the commands.");
+    } else {
+      // The partition using remaining drive space (if any) must be created LAST regardless of its
+      // slot number, since diskpart gives an unsized partition everything left at that point.
+      var fixedForScript = partitions.filter(function (p) { return !p.auto; });
+      var autoForScript = partitions.filter(function (p) { return p.auto; });
+      var creationOrder = fixedForScript.concat(autoForScript);
+
+      var step4Lines = creationOrder.map(function (p) {
+        var l = p.auto ? "create partition primary" : "create partition primary size=" + p.sizeMB;
+        l += "\nformat fs=exfat quick unit=" + p.allocKB + 'K label="' + p.label + '"';
+        l += "\nassign";   // diskpart does not hand out drive letters by itself
+        return l;
+      }).join("\n\n");
+
+      var step4 = "Create and format each partition:" + renderCodeBlock(step4Lines);
+      if (autoForScript.length) {
+        step4 += "<p>The final <code class=\"inline\">create partition primary</code> (no <code class=\"inline\">size=</code>) automatically claims all remaining drive space for " + esc(autoForScript[0].label) + ".</p>";
+      }
+      steps.push(step4);
+
+      var cmdSizes = creationOrder.map(function (p) {
+        return [esc(p.label), (p.auto ? "~" : "") + dpSize(p.sizeMB)];
+      });
+      steps.push("Verify all intended partitions are created. This screenshot depicts the default partitioning plan." +
+        renderCodeBlock("detail disk\nexit") +
+        paramList(cmdSizes) +
+        '<div class="shot shot-aligned"><img src="screenshots/diskpart-detail-disk.png" ' +
+        'alt="diskpart detail disk output listing the five exFAT volumes with their drive letters and sizes" loading="lazy"></div>');
+
+
+      var step5Lines = [];
+      partitions.forEach(function (p) {
+        if (!p.folders.length) return;
+        var mkdirs = p.folders.map(function (f) { return "mkdir %L:\\" + f; });
+        if (mkdirs.length === 1) {
+          step5Lines.push("for /f %L in ('powershell -NoProfile -Command \"(Get-Volume -FileSystemLabel '" + p.label + "').DriveLetter\"') do " + mkdirs[0]);
+        } else {
+          step5Lines.push("for /f %L in ('powershell -NoProfile -Command \"(Get-Volume -FileSystemLabel '" + p.label + "').DriveLetter\"') do (\n    " + mkdirs.join("\n    ") + "\n)");
+        }
+      });
+
+      var step5 = "Create the required folders:";
+      if (step5Lines.length) step5 += renderCodeBlock(step5Lines.join("\n\n"));
+      var noFolder = partitions.filter(function (p) { return !p.folders.length; });
+      if (noFolder.length) {
+        step5 += "<p>No folder is created on " + noFolder.map(function (p) { return esc(p.label); }).join(" or ") + " &mdash; files can go straight into the root.</p>";
+      }
+      steps.push(step5);
+
+      steps.push("Close the Command Prompt window.");
+
+      steps.push("In File Explorer, verify all required folders are created. This screenshot depicts the default partitioning plan, with drive letters optionally reassigned" + infoIcon("In Disk Management (press the Windows key, type diskmgmt, and select Create and format hard disk partitions), right-click a partition, choose Change Drive Letter and Paths..., click Change, pick a letter, and click OK.") + "." +
+        '<div class="shot shot-sm"><img src="screenshots/file-explorer-required-folders.png" ' +
+        'alt="File Explorer showing each partition with its required folders" loading="lazy"></div>');
+
+      steps.push('Add content as detailed in the <a href="#sec-plan">Files column</a> of the Partitioning Plan table above.' + rootFileNote(partitions));
+      steps.push("Safely eject the drive, insert it into your Tesla's USB data port (e.g. glovebox or center console), and confirm all features work as expected.");
+    }
+
+    var html = '<div class="notice warn">&#9888;&#65039; <strong>Familiarize yourself with all of the instructions before performing them.</strong> The <code class="inline">clean</code> command below is irreversible and disk-wide.</div>' +
+      '<ol class="steps">' + steps.map(function (s, i) {
+        return "<li" + (i >= gateFromIndex ? ' class="gated"' : "") + ">" + s + "</li>";
+      }).join("") + "</ol>";
+
+    document.getElementById("tab-commandline").innerHTML = html;
+
+    var diskInput = document.getElementById("cmdDiskNumber");
+    var confirmBtn = document.getElementById("confirmDisk");
+    var selectDiskWrap = document.getElementById("selectDiskWrap");
+
+    // The commands stay hidden until the disk is confirmed, and changing the number revokes
+    // that confirmation so a new disk is never cleaned on the strength of an older check.
+    function syncDiskUI() {
+      if (!confirmBtn || !selectDiskWrap) return;
+      var entered = cmdDiskNumber !== "";
+      confirmBtn.disabled = !entered;
+      confirmBtn.innerHTML = "CONFIRM <strong>DISK " + esc(entered ? cmdDiskNumber : "#") + "</strong> IS THE USB DRIVE";
+      var pre = document.getElementById("code-select-disk");
+      if (pre) pre.textContent = selectDiskScript();
+      var revealed = entered && cmdDiskConfirmed;
+      selectDiskWrap.hidden = !revealed;
+      var gateNotice = document.getElementById("gateNotice");
+      if (gateNotice) gateNotice.hidden = revealed;
+      document.querySelectorAll("#tab-commandline li.gated").forEach(function (li) {
+        li.hidden = !revealed;
+      });
+    }
+
+    if (diskInput) {
+      diskInput.addEventListener("input", function () {
+        cmdDiskNumber = diskInput.value.trim();
+        cmdDiskConfirmed = false;
+        syncDiskUI();
+      });
+    }
+
+    if (confirmBtn) {
+      confirmBtn.addEventListener("click", function () {
+        cmdDiskConfirmed = true;
+        syncDiskUI();
+      });
+    }
+
+    syncDiskUI();
+
+    document.querySelectorAll("#tab-commandline button.copy").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var t = document.getElementById(btn.dataset.target).textContent;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(t).then(function () {
+            btn.textContent = "Copied!";
+            setTimeout(function () { btn.textContent = "Copy"; }, 1500);
+          });
+        }
+      });
+    });
+  }
+
+  // ---------- tooltips ----------
+  // One bubble, positioned next to whichever icon asked for it. It is fixed-position and
+  // lives on <body> so a scrolling container cannot clip it.
+  var tipEl = document.createElement("div");
+  tipEl.className = "tip";
+  document.body.appendChild(tipEl);
+  var tipFor = null;
+
+  function hideTip() {
+    if (tipFor) tipFor.classList.remove("open");
+    tipFor = null;
+    tipEl.classList.remove("on");
+  }
+
+  function showTip(anchor) {
+    var text = anchor.getAttribute("data-tip");
+    if (!text) return;
+    if (tipFor && tipFor !== anchor) tipFor.classList.remove("open");
+    tipFor = anchor;
+    anchor.classList.add("open");
+    tipEl.textContent = text;
+    tipEl.classList.add("on");
+
+    // Measure at the origin, then keep the bubble inside the viewport on both axes.
+    tipEl.style.left = "0px";
+    tipEl.style.top = "0px";
+    var r = anchor.getBoundingClientRect();
+    var w = tipEl.offsetWidth;
+    var h = tipEl.offsetHeight;
+    var left = Math.min(Math.max(8, r.left + r.width / 2 - w / 2), window.innerWidth - w - 8);
+    var top = r.bottom + 8;
+    if (top + h > window.innerHeight - 8) top = Math.max(8, r.top - h - 8);
+    tipEl.style.left = Math.max(8, left) + "px";
+    tipEl.style.top = top + "px";
+  }
+
+  function tipAnchor(node) {
+    return node && node.closest ? node.closest("[data-tip]") : null;
+  }
+
+  // A touch device fires a synthetic mouseover just before click, so hover and tap cannot
+  // both drive the same toggle: whichever the device actually has is the one wired up.
+  var canHover = !window.matchMedia || window.matchMedia("(hover: hover)").matches;
+
+  if (canHover) {
+    document.addEventListener("mouseover", function (e) {
+      var a = tipAnchor(e.target);
+      if (a) showTip(a);
+      else if (tipFor && !tipFor.contains(e.target)) hideTip();
+    });
+  }
+
+  document.addEventListener("click", function (e) {
+    var a = tipAnchor(e.target);
+    if (!a) { hideTip(); return; }
+    if (canHover) showTip(a);
+    else if (a === tipFor) hideTip();
+    else showTip(a);
+  });
+
+  window.addEventListener("scroll", hideTip, true);
+  window.addEventListener("resize", hideTip);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") hideTip(); });
+
+  // ---------- resets ----------
+  document.getElementById("resetDrive").addEventListener("click", function () {
+    advertisedGBEl.value = "256";
+    usableEditedManually = false;
+    recalc();
+  });
+
+  document.getElementById("resetFeatures").addEventListener("click", function () {
+    buckets = DEFAULT_BUCKETS.map(function (b) { return b.slice(); });
+    notIncluded = [];
+    remainingSlot = "auto";
+    sizingState = {};
+    recalc();
+  });
+
+  advertisedGBEl.addEventListener("input", function () { usableEditedManually = false; recalc(); });
+  usableGBEl.addEventListener("input", function () { usableEditedManually = true; recalc(); });
+
+  var MODE_HINTS = {
+    drag: "To change from these defaults: drag a feature onto another partition to group them together, onto <strong>+ Drop here for a new partition</strong> to give it a partition of its own, or into <strong>EXCLUDED FEATURES</strong> (below) to leave it off the drive entirely. Edit the volume label, size, or allocation unit directly on any partition, and tick <strong>FILL</strong> in the header of whichever partition should be allocated all of the remaining drive space not explicitly allocated to the other partitions.",
+    checkboxes: "To change from these defaults: select a feature's checkbox on the partition you want it on. Deselecting a feature from all partitions sends it to <strong>EXCLUDED FEATURES</strong> (below), where the + button on a chip brings it back. Edit the volume label, size, or allocation unit directly on any partition, and tick <strong>Fill</strong> in the header of whichever partition should be allocated all of the remaining drive space not explicitly allocated to the other partitions."
+  };
+
+  document.querySelectorAll(".mode-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      document.querySelectorAll(".mode-btn").forEach(function (b) { b.classList.remove("active"); });
+      btn.classList.add("active");
+      groupingMode = btn.dataset.mode;
+      modeHintEl.innerHTML = MODE_HINTS[groupingMode];
+      recalc();
+    });
+  });
+
+  document.querySelectorAll(".tab-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      document.querySelectorAll(".tab-btn").forEach(function (b) { b.classList.remove("active"); });
+      document.querySelectorAll(".tab-panel").forEach(function (p) { p.classList.remove("active"); });
+      btn.classList.add("active");
+      document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+    });
+  });
+
+  // Screenshots open full-screen. Delegated from document so images inside
+  // re-rendered step lists stay clickable without re-binding.
+  var lightbox = document.createElement("div");
+  lightbox.className = "lightbox";
+  lightbox.setAttribute("role", "dialog");
+  lightbox.setAttribute("aria-modal", "true");
+  lightbox.innerHTML = '<button class="lightbox-close" type="button" aria-label="Close">&times;</button><img alt="">';
+  document.body.appendChild(lightbox);
+  var lightboxImg = lightbox.querySelector("img");
+
+  function closeLightbox() {
+    lightbox.classList.remove("open");
+    lightboxImg.removeAttribute("src");
+  }
+
+  document.addEventListener("click", function (e) {
+    var shot = e.target.closest && e.target.closest(".shot img");
+    if (shot) {
+      lightboxImg.src = shot.src;
+      lightboxImg.alt = shot.alt;
+      lightbox.classList.add("open");
+      return;
+    }
+    if (lightbox.classList.contains("open")) closeLightbox();
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && lightbox.classList.contains("open")) closeLightbox();
+  });
+
+  window.addEventListener("resize", fitBarLabels);
+
+  modeHintEl.innerHTML = MODE_HINTS.drag;
+  recalc();
+})();
+</script>
+</body>
+</html>
