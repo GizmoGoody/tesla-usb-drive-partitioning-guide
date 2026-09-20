@@ -6,12 +6,12 @@
 
 A complete step-by-step guide explaining the [purpose of partitioning](#definitions) a USB drive for use in Tesla vehicles, which [features can share](#feature-compatibility) the same partition, how to [plan your partitions](#partitioning-plan), [how to partition](#how-to-partition) your drive based on that plan, and the [file requirements](#file-requirements) for each of the features. The partition instructions include two methods - [graphical](#windows-graphical) and [command line](#windows-command-line) - to partition a single physical USB drive (SSD or microSD card) to support all six Tesla USB-based features:
 
-- Dashcam/Sentry Mode - "[TeslaCam](https://www.tesla.com/ownersmanual/modely/en_us/GUID-F311BBCA-2532-4D04-B88C-DBA784ADEE21.html#:~:text=The%20TeslaCam%20folder%20contains%20these%20sub-folders)" for the rest of this guide.
-- Music
-- Light Show - 'LightShow' for the rest of this guide.
-- Boombox
-- Wraps
-- License Plate - 'LicensePlate' for the rest of this guide.
+- [Dashcam](https://www.notateslaapp.com/news/4238/tesla-dashcam-sentry-mode-how-to-get-24-hours-of-rolling-footage)/Sentry Mode - "[TeslaCam](https://www.tesla.com/ownersmanual/modely/en_us/GUID-F311BBCA-2532-4D04-B88C-DBA784ADEE21.html#:~:text=The%20TeslaCam%20folder%20contains%20these%20sub-folders)" for the rest of this guide.
+- [Music](https://www.notateslaapp.com/news/2145/how-to-set-up-tesla-usb-drive-for-music-supports-lossless-audio)
+- [Light Show](https://xlightshows.io/light-shows/) - 'LightShow' for the rest of this guide.
+- [Boombox](https://www.notateslaapp.com/tesla-custom-lock-sounds/)
+- [Wraps](https://www.notateslaapp.com/news/2414/how-to-create-your-own-custom-cybertruck-wrap-for-visualizations)
+- [License Plate](https://www.notateslaapp.com/news/4561/how-to-create-custom-tesla-license-plate-visualizations) - 'LicensePlate' for the rest of this guide.
 
 A companion [Tesla USB Drive Partitioning Planner](https://gizmogoody.github.io/tesla-usb-drive-partitioning-guide/partitioning-planner.html) is also available: it generates a customized partition plan and matching step-by-step instructions based on your own drive size and feature choices, instead of the example plan used throughout this guide.
 
